@@ -350,6 +350,17 @@ export const fetchMarkets = () => get(`${V1}/geointel/markets`);
 export const fetchTradingSignals = () => get(`${V1}/geointel/signals`);
 export const fetchPlaybook = () => get(`${V1}/geointel/playbook`);
 
+// ── AI Trading ──────────────────────────────────────────────────────
+export const fetchPredictions = (p = {}) => get(`${V1}/ai-trading/predictions${qs(p)}`);
+export const fetchImpactStream = () => get(`${V1}/ai-trading/impact-stream`);
+export const fetchArbitrage = () => get(`${V1}/ai-trading/arbitrage`);
+export const executeTrade = (d) => post(`${V1}/ai-trading/execute`, d);
+export const executeArb = (d) => post(`${V1}/ai-trading/execute-arb`, d);
+export const fetchTrades = (p = {}) => get(`${V1}/ai-trading/trades${qs(p)}`);
+export const fetchPortfolio = () => get(`${V1}/ai-trading/portfolio`);
+export const closePosition = (d) => post(`${V1}/ai-trading/close-position`, d);
+export const runBacktest = (d) => post(`${V1}/ai-trading/backtest`, d);
+
 // ── Parts Catalog ────────────────────────────────────────────────────
 const PC = `${API}/api/parts-catalog`;
 
