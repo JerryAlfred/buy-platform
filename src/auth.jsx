@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import { apiLogin, apiMe, setTokens, clearTokens, getAccessToken } from './api';
 
 const ROLES = {
   platform_admin: {
@@ -111,17 +112,42 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
     const s = loadSession();
-    return s ? DEMO_USERS.find(u => u.id === s.userId) || null : null;
+    if (!s) return null;
+    if (s.mode === 'backend' && s.backendUser) return s.backendUser;
+    return DEMO_USERS.find(u => u.id === s.userId) || null;
   });
   const [allUsers] = useState(DEMO_USERS);
   const [allOrgs] = useState(DEMO_ORGS);
 
-  const login = useCallback((email, _password) => {
-    const found = DEMO_USERS.find(u => u.email === email);
-    if (!found) return { ok: false, error: 'User not found' };
-    setUser(found);
-    saveSession({ userId: found.id });
-    return { ok: true };
+  const login = useCallback(async (email, password) => {
+    const demo = DEMO_USERS.find(u => u.email === email);
+    if (demo) {
+      setUser(demo);
+      saveSession({ userId: demo.id, mode: 'demo' });
+      return { ok: true };
+    }
+    try {
+      const res = await apiLogin(email, password);
+      if (res.token) {
+        setTokens(res.token, res.refresh_token);
+        const backendUser = {
+          id: `backend_${res.user.id}`,
+          name: res.user.username,
+          email: res.user.email,
+          role: 'buyer_admin',
+          org_id: 'org_acme',
+          avatar: (res.user.username || 'U').slice(0, 2).toUpperCase(),
+          status: 'active',
+          _backend: true,
+        };
+        setUser(backendUser);
+        saveSession({ userId: backendUser.id, mode: 'backend', backendUser });
+        return { ok: true };
+      }
+      return { ok: false, error: 'Login failed' };
+    } catch (e) {
+      return { ok: false, error: e.message || 'Login failed' };
+    }
   }, []);
 
   const loginAs = useCallback((userId) => {
@@ -132,6 +158,7 @@ export function AuthProvider({ children }) {
   const logout = useCallback(() => {
     setUser(null);
     saveSession(null);
+    clearTokens();
   }, []);
 
   const hasAccess = useCallback((pageId) => {

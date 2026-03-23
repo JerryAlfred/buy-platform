@@ -48,87 +48,82 @@ const ComponentSearchPage = lazy(() => import('./pages/ComponentSearchPage'));
 const MarketIntelligencePage = lazy(() => import('./pages/MarketIntelligencePage'));
 const ComplianceGuidePage = lazy(() => import('./pages/ComplianceGuidePage'));
 const PrototypeBundlePage = lazy(() => import('./pages/PrototypeBundlePage'));
+const LaunchpadPage = lazy(() => import('./pages/LaunchpadPage'));
+const QuickStartPage = lazy(() => import('./pages/QuickStartPage'));
 const LogisticsPage = lazy(() => import('./pages/LogisticsPage'));
 const AutoNegPage = lazy(() => import('./pages/AutoNegPage'));
 
 
 const NAV_DEF = [
-  { groupKey: 'nav.command', items: [
-    { id: 'flywheel', labelKey: 'nav.flywheel', icon: '🎯' },
-    { id: 'dashboard', labelKey: 'nav.dashboard', icon: '📊' },
-    { id: 'confidence', labelKey: 'nav.confidence', icon: '⚡' },
-  ]},
-  { groupKey: 'nav.transaction', items: [
-    { id: 'marketplace', labelKey: 'nav.marketplace', icon: '🛒' },
-    { id: 'agency', labelKey: 'nav.agency', icon: '📜' },
-    { id: 'rfq', labelKey: 'nav.rfq', icon: '📝' },
-    { id: 'negotiation', labelKey: 'nav.negotiation', icon: '💬' },
-    { id: 'bom', labelKey: 'nav.bom', icon: '🔧' },
-    { id: 'procurement', labelKey: 'nav.procurement', icon: '🔗' },
-  ]},
-  { groupKey: 'nav.execution', items: [
-    { id: 'milestones', labelKey: 'nav.milestones', icon: '🏦' },
-    { id: 'orders', labelKey: 'nav.orders', icon: '📦' },
-    { id: 'logistics', labelKey: 'nav.logistics', icon: '🚚' },
-    { id: 'verification', labelKey: 'nav.verification', icon: '🔍' },
-    { id: 'compliance', labelKey: 'nav.compliance', icon: '📋' },
-    { id: 'portal', labelKey: 'nav.portal', icon: '👤' },
-  ]},
-  { groupKey: 'nav.supplier', items: [
-    { id: 'suppliers', labelKey: 'nav.suppliers', icon: '🏭' },
-    { id: 'expert', labelKey: 'nav.expert', icon: '🧠' },
-    { id: 'trust', labelKey: 'nav.trust', icon: '⭐' },
-    { id: 'credit', labelKey: 'nav.credit', icon: '💳' },
-    { id: 'relationships', labelKey: 'nav.relationships', icon: '🤝' },
-    { id: 'intelligence', labelKey: 'nav.intelligence', icon: '📈' },
-  ]},
-  { groupKey: 'nav.product_dev', items: [
+  { groupKey: 'nav.home_group', collapsed: false, items: [
+    { id: 'launchpad', labelKey: 'nav.launchpad', icon: '🏠' },
+    { id: 'quick_start', labelKey: 'nav.quick_start', icon: '🚀' },
+    { id: 'platform_intel', labelKey: 'nav.platform_intel', icon: '🧠' },
     { id: 'project_workspace', labelKey: 'nav.project_workspace', icon: '📋' },
+  ]},
+  { groupKey: 'nav.product_dev', collapsed: false, items: [
     { id: 'product_wizard', labelKey: 'nav.product_wizard', icon: '🧙' },
     { id: 'component_search', labelKey: 'nav.component_search', icon: '🔍' },
-    { id: 'market_intel', labelKey: 'nav.market_intel', icon: '📊' },
-    { id: 'compliance_guide', labelKey: 'nav.compliance_guide', icon: '✅' },
     { id: 'prototype_bundle', labelKey: 'nav.prototype_bundle', icon: '📦' },
+    { id: 'compliance_guide', labelKey: 'nav.compliance_guide', icon: '✅' },
+    { id: 'market_intel', labelKey: 'nav.market_intel', icon: '📊' },
   ]},
-  { groupKey: 'nav.catalog', items: [
+  { groupKey: 'nav.design_tools', collapsed: false, items: [
+    { id: 'cad_design', labelKey: 'nav.cad_design', icon: '🔧' },
+    { id: 'eda_hub', labelKey: 'nav.eda_hub', icon: '🔌' },
+    { id: 'design_templates', labelKey: 'nav.design_templates', icon: '📚' },
+    { id: 'design_to_quote', labelKey: 'nav.design_to_quote', icon: '💰' },
+  ]},
+  { groupKey: 'nav.catalog', collapsed: true, items: [
     { id: 'parts_catalog', labelKey: 'nav.parts_catalog', icon: '🔩' },
     { id: 'humanoid_atlas', labelKey: 'nav.humanoid_atlas', icon: '🤖' },
     { id: 'supply_tree', labelKey: 'nav.supply_tree', icon: '🌳' },
-    { id: 'cad_design', labelKey: 'nav.cad_design', icon: '🔧' },
-    { id: 'design_to_quote', labelKey: 'nav.design_to_quote', icon: '💰' },
-    { id: 'design_templates', labelKey: 'nav.design_templates', icon: '📚' },
   ]},
-  { groupKey: 'nav.mes', items: [
-    { id: 'mes_workbench', labelKey: 'nav.mes_workbench', icon: '☁️' },
-    { id: 'traceability', labelKey: 'nav.traceability', icon: '🔍' },
-    { id: 'ai_analytics', labelKey: 'nav.ai_analytics', icon: '🤖' },
+  { groupKey: 'nav.transaction', collapsed: true, items: [
+    { id: 'marketplace', labelKey: 'nav.marketplace', icon: '🛒' },
+    { id: 'rfq', labelKey: 'nav.rfq', icon: '📝' },
+    { id: 'negotiation', labelKey: 'nav.negotiation', icon: '💬' },
+    { id: 'bom', labelKey: 'nav.bom', icon: '🔧' },
+    { id: 'orders', labelKey: 'nav.orders', icon: '📦' },
+    { id: 'logistics', labelKey: 'nav.logistics', icon: '🚚' },
   ]},
-  { groupKey: 'nav.agents', items: [
-    { id: 'browser', labelKey: 'nav.browser', icon: '🌐' },
-    { id: 'graph', labelKey: 'nav.graph', icon: '🕸️' },
-    { id: 'crawler', labelKey: 'nav.crawler', icon: '🕷️' },
+  { groupKey: 'nav.supplier', collapsed: true, items: [
+    { id: 'suppliers', labelKey: 'nav.suppliers', icon: '🏭' },
+    { id: 'expert', labelKey: 'nav.expert', icon: '🧠' },
+    { id: 'trust', labelKey: 'nav.trust', icon: '⭐' },
+    { id: 'relationships', labelKey: 'nav.relationships', icon: '🤝' },
+    { id: 'intelligence', labelKey: 'nav.intelligence', icon: '📈' },
     { id: 'auto_neg', labelKey: 'nav.auto_neg', icon: '🤝' },
   ]},
-  { groupKey: 'nav.operations', items: [
-    { id: 'requests', labelKey: 'nav.requests', icon: '📋' },
-    { id: 'timeline', labelKey: 'nav.timeline', icon: '🕐' },
-  ]},
-  { groupKey: 'nav.eda', items: [
-    { id: 'eda_hub', labelKey: 'nav.eda_hub', icon: '🔌' },
+  { groupKey: 'nav.advanced', collapsed: true, items: [
+    { id: 'dashboard', labelKey: 'nav.dashboard', icon: '📊' },
+    { id: 'flywheel', labelKey: 'nav.flywheel', icon: '🎯' },
+    { id: 'confidence', labelKey: 'nav.confidence', icon: '⚡' },
+    { id: 'agency', labelKey: 'nav.agency', icon: '📜' },
+    { id: 'procurement', labelKey: 'nav.procurement', icon: '🔗' },
+    { id: 'milestones', labelKey: 'nav.milestones', icon: '🏦' },
+    { id: 'verification', labelKey: 'nav.verification', icon: '🔍' },
+    { id: 'compliance', labelKey: 'nav.compliance', icon: '📋' },
+    { id: 'portal', labelKey: 'nav.portal', icon: '👤' },
+    { id: 'credit', labelKey: 'nav.credit', icon: '💳' },
     { id: 'schematic', labelKey: 'nav.schematic', icon: '📐' },
     { id: 'pcb_layout', labelKey: 'nav.pcb_layout', icon: '🖥️' },
     { id: 'gerber_view', labelKey: 'nav.gerber_view', icon: '👁️' },
     { id: 'pcb_order', labelKey: 'nav.pcb_order', icon: '🛒' },
-  ]},
-  { groupKey: 'nav.quality', items: [
     { id: 'quality', labelKey: 'nav.quality_risk', icon: '🛡️' },
-  ]},
-  { groupKey: 'nav.finance', items: [
     { id: 'fulfillment', labelKey: 'nav.fulfillment', icon: '📦' },
     { id: 'payments', labelKey: 'nav.payments', icon: '💰' },
     { id: 'revenue', labelKey: 'nav.revenue', icon: '📈' },
+    { id: 'mes_workbench', labelKey: 'nav.mes_workbench', icon: '☁️' },
+    { id: 'traceability', labelKey: 'nav.traceability', icon: '🔍' },
+    { id: 'ai_analytics', labelKey: 'nav.ai_analytics', icon: '🤖' },
+    { id: 'browser', labelKey: 'nav.browser', icon: '🌐' },
+    { id: 'graph', labelKey: 'nav.graph', icon: '🕸️' },
+    { id: 'crawler', labelKey: 'nav.crawler', icon: '🕷️' },
+    { id: 'requests', labelKey: 'nav.requests', icon: '📋' },
+    { id: 'timeline', labelKey: 'nav.timeline', icon: '🕐' },
   ]},
-  { groupKey: 'nav.system', items: [
+  { groupKey: 'nav.system', collapsed: true, items: [
     { id: 'org', labelKey: 'nav.org', icon: '🏢' },
     { id: 'roles', labelKey: 'nav.roles', icon: '🔐' },
     { id: 'account', labelKey: 'nav.account', icon: '⚙️' },
@@ -543,32 +538,45 @@ function MarketplacePage() {
 // ═══════════════════════════════════════════════════════════════════════════
 
 const INLINE_PAGES = { dashboard: DashboardPage, expert: ExpertPage, bom: BOMPage, rfq: RFQPage, suppliers: SuppliersPage, relationships: RelationshipsPage, quality: QualityPage, procurement: ProcurementPage, intelligence: IntelligencePage, marketplace: MarketplacePage };
-const LAZY_PAGES = { confidence: ConfidencePage, negotiation: NegotiationPage, milestones: MilestonePage, verification: VerificationPage, orders: OrderTrackingPage, browser: BrowserAgentPage, graph: SupplyGraphPage, trust: TrustScorePage, agency: AgencyPage, compliance: CompliancePage, credit: CreditPage, portal: CustomerPortalPage, flywheel: FlywheelPage, fulfillment: FulfillmentPage, payments: PaymentsPage, revenue: RevenuePage, org: OrgManagementPage, roles: RolesPermissionsPage, account: AccountPage, crawler: CrawlerPage, requests: RequestsPage, timeline: TimelinePage, eda_hub: EdaDesignHub, schematic: SchematicEditor, pcb_layout: PcbLayoutEditor, gerber_view: GerberPreview, pcb_order: PcbOrderPage, parts_catalog: PartsCatalogPage, humanoid_atlas: HumanoidAtlasPage, supply_tree: SupplyTreePage, cad_design: CADDesignPage, design_to_quote: DesignToQuotePage, design_templates: DesignTemplatesPage, mes_workbench: MESWorkbenchPage, traceability: TraceabilityPage, ai_analytics: AIAnalyticsPage, logistics: LogisticsPage, auto_neg: AutoNegPage };
+const LAZY_PAGES = { launchpad: LaunchpadPage, quick_start: QuickStartPage, confidence: ConfidencePage, negotiation: NegotiationPage, milestones: MilestonePage, verification: VerificationPage, orders: OrderTrackingPage, browser: BrowserAgentPage, graph: SupplyGraphPage, trust: TrustScorePage, agency: AgencyPage, compliance: CompliancePage, credit: CreditPage, portal: CustomerPortalPage, flywheel: FlywheelPage, fulfillment: FulfillmentPage, payments: PaymentsPage, revenue: RevenuePage, org: OrgManagementPage, roles: RolesPermissionsPage, account: AccountPage, crawler: CrawlerPage, requests: RequestsPage, timeline: TimelinePage, eda_hub: EdaDesignHub, schematic: SchematicEditor, pcb_layout: PcbLayoutEditor, gerber_view: GerberPreview, pcb_order: PcbOrderPage, parts_catalog: PartsCatalogPage, humanoid_atlas: HumanoidAtlasPage, supply_tree: SupplyTreePage, cad_design: CADDesignPage, design_to_quote: DesignToQuotePage, design_templates: DesignTemplatesPage, mes_workbench: MESWorkbenchPage, traceability: TraceabilityPage, ai_analytics: AIAnalyticsPage, logistics: LogisticsPage, auto_neg: AutoNegPage, project_workspace: ProjectWorkspacePage, product_wizard: ProductWizardPage, component_search: ComponentSearchPage, market_intel: MarketIntelligencePage, compliance_guide: ComplianceGuidePage, prototype_bundle: PrototypeBundlePage, platform_intel: PlatformIntelPage };
 
 function Loading() { return <div style={{ textAlign: 'center', padding: 60, color: 'var(--text3)' }}>Loading...</div>; }
 
 function AppShell() {
   const { user, org, roleMeta, hasAccess, logout } = useAuth();
   const { t, lang, toggleLang } = useI18n();
-  const [page, setPage] = useState('dashboard');
+  const [page, setPage] = useState('launchpad');
   const [agentOpen, setAgentOpen] = useState(false);
+  const [navSearch, setNavSearch] = useState('');
+  const [collapsedGroups, setCollapsedGroups] = useState(() => {
+    const init = {};
+    NAV_DEF.forEach(g => { if (g.collapsed) init[g.groupKey] = true; });
+    return init;
+  });
 
   if (!user) return <Suspense fallback={<Loading />}><LoginPage /></Suspense>;
 
-  const filteredNav = NAV_DEF.map(g => ({
-    group: t(g.groupKey),
-    items: g.items.filter(i => hasAccess(i.id)).map(i => ({ ...i, label: t(i.labelKey) })),
-  })).filter(g => g.items.length > 0);
+  const toggleGroup = (key) => setCollapsedGroups(prev => ({ ...prev, [key]: !prev[key] }));
+
+  const sq = navSearch.toLowerCase();
+  const filteredNav = NAV_DEF.map(g => {
+    const items = g.items.filter(i => hasAccess(i.id)).map(i => ({ ...i, label: t(i.labelKey) }));
+    const filtered = sq ? items.filter(i => i.label.toLowerCase().includes(sq) || i.id.includes(sq)) : items;
+    return { groupKey: g.groupKey, group: t(g.groupKey), items: filtered, isCollapsed: sq ? false : !!collapsedGroups[g.groupKey] };
+  }).filter(g => g.items.length > 0);
+
+  const handleNav = (id) => { setPage(id); setNavSearch(''); };
 
   const InlinePage = INLINE_PAGES[page];
   const LazyPage = LAZY_PAGES[page];
+  const needsOnNavigate = page === 'launchpad' || page === 'quick_start';
 
   return (
     <div className="app">
       <aside className="sidebar">
         <div className="logo">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h1>{t('app.name')}</h1>
+            <h1 style={{ cursor: 'pointer' }} onClick={() => setPage('launchpad')}>{t('app.name')}</h1>
             <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
               <NotificationCenter onNavigate={setPage} />
               <button onClick={toggleLang} style={{
@@ -579,7 +587,12 @@ function AppShell() {
           </div>
           <p>{t('app.sub')}</p>
         </div>
-        <div style={{ padding: '0 12px 14px', marginBottom: 10, borderBottom: '1px solid var(--border)' }}>
+        <div style={{ padding: '0 12px 10px' }}>
+          <input value={navSearch} onChange={e => setNavSearch(e.target.value)}
+            placeholder={lang === 'zh' ? '搜索功能...' : 'Search...'}
+            style={{ width: '100%', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 8, padding: '7px 10px', color: 'var(--text)', fontSize: '.82rem', outline: 'none', boxSizing: 'border-box' }} />
+        </div>
+        <div style={{ padding: '0 12px 14px', marginBottom: 6, borderBottom: '1px solid var(--border)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px', borderRadius: 8, background: 'var(--bg)', cursor: 'pointer' }} onClick={() => setPage('account')}>
             <div style={{ width: 32, height: 32, borderRadius: '50%', background: `${roleMeta.color}22`, color: roleMeta.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '.75rem', flexShrink: 0 }}>{user.avatar}</div>
             <div style={{ flex: 1, minWidth: 0 }}>
@@ -590,10 +603,13 @@ function AppShell() {
           {org && <div style={{ fontSize: '.72rem', color: 'var(--text3)', padding: '4px 8px 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{org.name}</div>}
         </div>
         {filteredNav.map(g => (
-          <div key={g.group} className="nav-group">
-            <div className="nav-group-label">{g.group}</div>
-            {g.items.map(i => (
-              <div key={i.id} className={`nav-item ${page === i.id ? 'active' : ''}`} onClick={() => setPage(i.id)}>
+          <div key={g.groupKey} className="nav-group">
+            <div className="nav-group-label" style={{ cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', userSelect: 'none' }} onClick={() => toggleGroup(g.groupKey)}>
+              <span>{g.group}</span>
+              <span style={{ fontSize: 10, color: 'var(--text3)', transition: 'transform .2s', transform: g.isCollapsed ? 'rotate(-90deg)' : 'none' }}>▼</span>
+            </div>
+            {!g.isCollapsed && g.items.map(i => (
+              <div key={i.id} className={`nav-item ${page === i.id ? 'active' : ''}`} onClick={() => handleNav(i.id)}>
                 <span className="nav-icon">{i.icon}</span> {i.label}
               </div>
             ))}
@@ -604,7 +620,11 @@ function AppShell() {
         </div>
       </aside>
       <main className="main">
-        {InlinePage ? <InlinePage /> : LazyPage ? <Suspense fallback={<Loading />}><LazyPage /></Suspense> : <DashboardPage />}
+        {InlinePage ? <InlinePage /> : LazyPage ? (
+          <Suspense fallback={<Loading />}>
+            {needsOnNavigate ? <LazyPage onNavigate={handleNav} /> : <LazyPage />}
+          </Suspense>
+        ) : <Suspense fallback={<Loading />}><LaunchpadPage onNavigate={handleNav} /></Suspense>}
       </main>
       <AgentBar collapsed={!agentOpen} onToggle={() => setAgentOpen(!agentOpen)} onNavigate={setPage} />
     </div>

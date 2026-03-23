@@ -3,12 +3,73 @@ const V1 = `${API}/api/supply-chain`;
 const V2 = `${API}/api/supply-chain/v2`;
 const MP = `${API}/api/marketplace`;
 
+const TOKEN_KEY = 'robotbuy_token';
+const REFRESH_KEY = 'robotbuy_refresh';
+
+export function setTokens(access, refresh) {
+  if (access) localStorage.setItem(TOKEN_KEY, access); else localStorage.removeItem(TOKEN_KEY);
+  if (refresh) localStorage.setItem(REFRESH_KEY, refresh); else localStorage.removeItem(REFRESH_KEY);
+}
+export function getAccessToken() { return localStorage.getItem(TOKEN_KEY) || ''; }
+export function clearTokens() { localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(REFRESH_KEY); }
+
+let _refreshPromise = null;
+async function _tryRefresh() {
+  const rt = localStorage.getItem(REFRESH_KEY);
+  if (!rt) { clearTokens(); return null; }
+  if (_refreshPromise) return _refreshPromise;
+  _refreshPromise = fetch(`${API}/api/auth/refresh`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ refresh_token: rt }),
+  }).then(async r => {
+    _refreshPromise = null;
+    if (!r.ok) { clearTokens(); return null; }
+    const d = await r.json();
+    setTokens(d.token, d.refresh_token);
+    return d.token;
+  }).catch(() => { _refreshPromise = null; clearTokens(); return null; });
+  return _refreshPromise;
+}
+
+function _headers(extra = {}) {
+  const h = { 'Content-Type': 'application/json', ...extra };
+  const t = getAccessToken();
+  if (t) h['Authorization'] = `Bearer ${t}`;
+  return h;
+}
+
+async function _fetch(url, opts = {}) {
+  opts.headers = _headers(opts.headers);
+  let r = await fetch(url, opts);
+  if (r.status === 401 && localStorage.getItem(REFRESH_KEY)) {
+    const newToken = await _tryRefresh();
+    if (newToken) {
+      opts.headers['Authorization'] = `Bearer ${newToken}`;
+      r = await fetch(url, opts);
+    }
+  }
+  if (!r.ok) throw new Error(`API ${r.status}`);
+  return r.json();
+}
+
 const j = (r) => { if (!r.ok) throw new Error(`API ${r.status}`); return r.json(); };
-const post = (url, body) => fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }).then(j);
-const get = (url) => fetch(url).then(j);
-const patch = (url, body) => fetch(url, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }).then(j);
-const del = (url) => fetch(url, { method: 'DELETE' }).then(j);
+const post = (url, body) => _fetch(url, { method: 'POST', body: JSON.stringify(body) });
+const get = (url) => _fetch(url);
+const patch = (url, body) => _fetch(url, { method: 'PATCH', body: JSON.stringify(body) });
+const del = (url) => _fetch(url, { method: 'DELETE' });
 const qs = (p) => { const o = {}; for (const [k, v] of Object.entries(p)) { if (v !== '' && v !== undefined && v !== null) o[k] = v; } const s = new URLSearchParams(o).toString(); return s ? `?${s}` : ''; };
+
+export const apiLogin = (identifier, password) =>
+  fetch(`${API}/api/auth/login`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ identifier, password }),
+  }).then(j);
+export const apiLoginGoogle = (credential) =>
+  fetch(`${API}/api/auth/login`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ provider: 'google', credential }),
+  }).then(j);
+export const apiMe = () => _fetch(`${API}/api/auth/me`);
 
 // ── V1: Core Supply Chain ───────────────────────────────────────────────
 export const fetchDashboard = () => get(`${V1}/dashboard`);
@@ -217,6 +278,33 @@ export const autoNegNextRound = (id) => post(`${V1}/auto-negotiate/${id}/next-ro
 export const autoNegAccept = (id, idx = 0) => post(`${V1}/auto-negotiate/${id}/accept?supplier_idx=${idx}`, {});
 export const fetchAutoNegList = (p = {}) => get(`${V1}/auto-negotiate${qs(p)}`);
 
+// ── Marketing Engine (对标阿里妈妈) ─────────────────────────────────
+export const createCampaign = (data) => post(`${V1}/marketing/campaigns`, data);
+export const fetchCampaigns = () => get(`${V1}/marketing/campaigns`);
+export const fetchMarketingDashboard = () => get(`${V1}/marketing/dashboard`);
+export const optimizeCampaign = (id = '') => post(`${V1}/marketing/optimize?campaign_id=${id}`, {});
+
+// ── Business Intelligence (对标生意参谋) ─────────────────────────────
+export const fetchBIOverview = () => get(`${V1}/intelligence/overview`);
+export const fetchMarketTrends = () => get(`${V1}/intelligence/market-trends`);
+
+// ── AI Control Tower (对标 Medline) ──────────────────────────────────
+export const fetchControlTower = () => get(`${V1}/control-tower/overview`);
+export const fetchControlAlerts = () => get(`${V1}/control-tower/alerts`);
+
+// ── Warehouse Intelligence (对标京东物流) ────────────────────────────
+export const fetchWarehouseOverview = () => get(`${V1}/warehouse/overview`);
+export const fetchWarehouseRouting = (dest = 'US') => get(`${V1}/warehouse/routing?destination=${dest}`);
+
+// ── Cross-Border Compliance (对标 Deel) ──────────────────────────────
+export const fetchComplianceOverview = () => get(`${V1}/compliance/overview`);
+export const fetchContracts = () => get(`${V1}/compliance/contracts`);
+export const calcTax = (p = {}) => get(`${V1}/compliance/tax-calculator${qs(p)}`);
+export const fetchMultiCurrency = () => get(`${V1}/compliance/multi-currency`);
+
+// ── Fulfillment Optimizer (对标 Amazon FBA) ──────────────────────────
+export const fetchFulfillmentOptimizer = () => get(`${V1}/fulfillment/optimizer`);
+
 // ── Parts Catalog ────────────────────────────────────────────────────
 const PC = `${API}/api/parts-catalog`;
 
@@ -247,8 +335,8 @@ export const createEdaProject = (d) => post(`${EDA}/projects`, d);
 export const fetchEdaProject = (id) => get(`${EDA}/projects/${id}`);
 export const updateEdaProject = (id, d) => patch(`${EDA}/projects/${id}`, d);
 export const deleteEdaProject = (id) => del(`${EDA}/projects/${id}`);
-export const uploadEdaGerber = (id, file) => { const fd = new FormData(); fd.append('file', file); return fetch(`${EDA}/projects/${id}/upload-gerber`, { method: 'POST', body: fd }).then(j); };
-export const uploadEdaKicad = (id, file) => { const fd = new FormData(); fd.append('file', file); return fetch(`${EDA}/projects/${id}/upload-kicad`, { method: 'POST', body: fd }).then(j); };
+export const uploadEdaGerber = (id, file) => { const fd = new FormData(); fd.append('file', file); const h = {}; const t = getAccessToken(); if (t) h['Authorization'] = `Bearer ${t}`; return fetch(`${EDA}/projects/${id}/upload-gerber`, { method: 'POST', body: fd, headers: h }).then(j); };
+export const uploadEdaKicad = (id, file) => { const fd = new FormData(); fd.append('file', file); const h = {}; const t = getAccessToken(); if (t) h['Authorization'] = `Bearer ${t}`; return fetch(`${EDA}/projects/${id}/upload-kicad`, { method: 'POST', body: fd, headers: h }).then(j); };
 export const fetchEdaTemplates = () => get(`${EDA}/templates`);
 export const searchEdaParts = (q, limit = 20) => get(`${EDA}/parts/search?q=${encodeURIComponent(q)}&limit=${limit}`);
 export const fetchEdaStats = () => get(`${EDA}/stats`);
@@ -285,6 +373,16 @@ export const fetchMesAiScheduling = (fid) => post(`${MES}/ai/scheduling-suggesti
 export const fetchMesAiQuote = (p = {}) => post(`${MES}/ai/quote-prediction${qs(p)}`, {});
 export const fetchMesAiAnalytics = (p = {}) => get(`${MES}/ai/production-analytics${qs(p)}`);
 export const fetchMesTrace = (poId) => get(`${MES}/trace/order/${poId}`);
+export const uploadQualityImages = (qid, files) => {
+  const fd = new FormData(); files.forEach(f => fd.append('files', f));
+  const h = {}; const t = getAccessToken(); if (t) h['Authorization'] = `Bearer ${t}`;
+  return fetch(`${MES}/quality/${qid}/upload-images`, { method: 'POST', body: fd, headers: h }).then(j);
+};
+export const uploadWorkOrderEvidence = (woid, files, type = 'progress', notes = '') => {
+  const fd = new FormData(); files.forEach(f => fd.append('files', f));
+  const h = {}; const t = getAccessToken(); if (t) h['Authorization'] = `Bearer ${t}`;
+  return fetch(`${MES}/work-orders/${woid}/upload-evidence?evidence_type=${type}&notes=${encodeURIComponent(notes)}`, { method: 'POST', body: fd, headers: h }).then(j);
+};
 
 // ── 3D CAD Design ────────────────────────────────────────────────────
 const CAD = `${API}/api/cad-design`;
@@ -307,6 +405,70 @@ export const generateCadRfq = (id) => post(`${CAD}/designs/${id}/generate-rfq`, 
 export const quickCadRfq = (body) => post(`${CAD}/quick-rfq`, body);
 export const getCadRfqQuotes = (body) => post(`${CAD}/rfq-quotes`, body);
 export const fetchCadStats = () => get(`${CAD}/stats`);
+
+// ── Project Workspace ────────────────────────────────────────────────
+const PW = `${API}/api/project-workspace`;
+
+export const fetchProductTypes = () => get(`${PW}/product-types`);
+export const fetchProjectStages = () => get(`${PW}/stages`);
+export const createProject = (d) => post(`${PW}/projects`, d);
+export const fetchProjects = (p = {}) => get(`${PW}/projects${qs(p)}`);
+export const fetchProject = (id) => get(`${PW}/projects/${id}`);
+export const updateProject = (id, d) => patch(`${PW}/projects/${id}`, d);
+export const advanceProjectStage = (id) => post(`${PW}/projects/${id}/advance-stage`, {});
+export const addProjectVersion = (id, note = '') => post(`${PW}/projects/${id}/add-version?note=${encodeURIComponent(note)}`, {});
+export const addProjectCost = (id, category, amount) => post(`${PW}/projects/${id}/add-cost?category=${encodeURIComponent(category)}&amount=${amount}`, {});
+export const linkProjectResource = (id, type, rid) => post(`${PW}/projects/${id}/link?resource_type=${type}&resource_id=${rid}`, {});
+export const addProjectMilestone = (id, name, target) => post(`${PW}/projects/${id}/milestones?name=${encodeURIComponent(name)}&target=${target}`, {});
+export const fetchProjectDashboard = () => get(`${PW}/dashboard`);
+
+// ── AI Product Wizard ────────────────────────────────────────────────
+const WIZ = `${API}/api/product-wizard`;
+
+export const fetchWizardPresets = () => get(`${WIZ}/presets`);
+export const fetchTechStackDb = () => get(`${WIZ}/tech-stack-db`);
+export const generateProductPlan = (d) => post(`${WIZ}/generate`, d);
+export const refineProductPlan = (d) => post(`${WIZ}/refine`, d);
+
+// ── Component Search ─────────────────────────────────────────────────
+const CS = `${API}/api/component-search`;
+
+export const fetchComponentDistributors = () => get(`${CS}/distributors`);
+export const searchComponents = (q, category = '', limit = 20) => get(`${CS}/search?q=${encodeURIComponent(q)}&category=${encodeURIComponent(category)}&limit=${limit}`);
+export const fetchComponentCategories = () => get(`${CS}/categories`);
+export const crossReferenceComponent = (mpn) => get(`${CS}/cross-reference/${encodeURIComponent(mpn)}`);
+export const compareComponents = (mpns) => post(`${CS}/compare`, { mpns });
+export const fetchPopularComponents = () => get(`${CS}/popular`);
+
+// ── Market Intelligence ──────────────────────────────────────────────
+const MI = `${API}/api/market-intelligence`;
+
+export const searchPatents = (q, limit = 20) => get(`${MI}/patents?q=${encodeURIComponent(q)}&limit=${limit}`);
+export const searchCrowdfunding = (q, category = '') => get(`${MI}/crowdfunding?q=${encodeURIComponent(q)}&category=${encodeURIComponent(category)}`);
+export const fetchTrendingCampaigns = () => get(`${MI}/crowdfunding/trending`);
+export const searchFcc = (q) => get(`${MI}/fcc/search?q=${encodeURIComponent(q)}`);
+export const fetchTeardowns = (q = '') => get(`${MI}/teardowns?q=${encodeURIComponent(q)}`);
+export const fetchTeardown = (id) => get(`${MI}/teardowns/${id}`);
+export const fetchMarketSummary = (q) => get(`${MI}/summary?q=${encodeURIComponent(q)}`);
+
+// ── Compliance Guide ─────────────────────────────────────────────────
+const CG = `${API}/api/compliance-guide`;
+
+export const fetchComplianceProductTypes = () => get(`${CG}/product-types`);
+export const fetchComplianceMarkets = () => get(`${CG}/markets`);
+export const checkCompliance = (d) => post(`${CG}/check`, d);
+export const fetchComplianceCertifications = (p = {}) => get(`${CG}/certifications${qs(p)}`);
+export const fetchComplianceAgencies = (region = '') => get(`${CG}/agencies${region ? `?region=${region}` : ''}`);
+
+// ── Prototype Bundle ─────────────────────────────────────────────────
+const PB = `${API}/api/prototype-bundle`;
+
+export const fetchBundlePackages = () => get(`${PB}/packages`);
+export const fetchDemoBom = () => get(`${PB}/demo-bom`);
+export const fetchShippingOptions = () => get(`${PB}/shipping-options`);
+export const splitBom = (d) => post(`${PB}/split`, d);
+export const fetchBundle = (id) => get(`${PB}/bundles/${id}`);
+export const checkoutBundle = (d) => post(`${PB}/checkout`, d);
 
 // ── Design Templates ─────────────────────────────────────────────────
 const DT = `${API}/api/design-templates`;
