@@ -35,6 +35,8 @@ const PcbOrderPage = lazy(() => import('./pages/PcbOrderPage'));
 const PartsCatalogPage = lazy(() => import('./pages/PartsCatalogPage'));
 const HumanoidAtlasPage = lazy(() => import('./pages/HumanoidAtlasPage'));
 const SupplyTreePage = lazy(() => import('./pages/SupplyTreePage'));
+const CADDesignPage = lazy(() => import('./pages/CADDesignPage'));
+const DesignToQuotePage = lazy(() => import('./pages/DesignToQuotePage'));
 
 
 const NAV_DEF = [
@@ -70,6 +72,8 @@ const NAV_DEF = [
     { id: 'parts_catalog', labelKey: 'nav.parts_catalog', icon: '🔩' },
     { id: 'humanoid_atlas', labelKey: 'nav.humanoid_atlas', icon: '🤖' },
     { id: 'supply_tree', labelKey: 'nav.supply_tree', icon: '🌳' },
+    { id: 'cad_design', labelKey: 'nav.cad_design', icon: '🔧' },
+    { id: 'design_to_quote', labelKey: 'nav.design_to_quote', icon: '💰' },
   ]},
   { groupKey: 'nav.agents', items: [
     { id: 'browser', labelKey: 'nav.browser', icon: '🌐' },
@@ -510,7 +514,7 @@ function MarketplacePage() {
 // ═══════════════════════════════════════════════════════════════════════════
 
 const INLINE_PAGES = { dashboard: DashboardPage, expert: ExpertPage, bom: BOMPage, rfq: RFQPage, suppliers: SuppliersPage, relationships: RelationshipsPage, quality: QualityPage, procurement: ProcurementPage, intelligence: IntelligencePage, marketplace: MarketplacePage };
-const LAZY_PAGES = { confidence: ConfidencePage, negotiation: NegotiationPage, milestones: MilestonePage, verification: VerificationPage, orders: OrderTrackingPage, browser: BrowserAgentPage, graph: SupplyGraphPage, trust: TrustScorePage, agency: AgencyPage, compliance: CompliancePage, credit: CreditPage, portal: CustomerPortalPage, flywheel: FlywheelPage, fulfillment: FulfillmentPage, payments: PaymentsPage, revenue: RevenuePage, org: OrgManagementPage, roles: RolesPermissionsPage, account: AccountPage, crawler: CrawlerPage, requests: RequestsPage, timeline: TimelinePage, eda_hub: EdaDesignHub, schematic: SchematicEditor, pcb_layout: PcbLayoutEditor, gerber_view: GerberPreview, pcb_order: PcbOrderPage, parts_catalog: PartsCatalogPage, humanoid_atlas: HumanoidAtlasPage, supply_tree: SupplyTreePage };
+const LAZY_PAGES = { confidence: ConfidencePage, negotiation: NegotiationPage, milestones: MilestonePage, verification: VerificationPage, orders: OrderTrackingPage, browser: BrowserAgentPage, graph: SupplyGraphPage, trust: TrustScorePage, agency: AgencyPage, compliance: CompliancePage, credit: CreditPage, portal: CustomerPortalPage, flywheel: FlywheelPage, fulfillment: FulfillmentPage, payments: PaymentsPage, revenue: RevenuePage, org: OrgManagementPage, roles: RolesPermissionsPage, account: AccountPage, crawler: CrawlerPage, requests: RequestsPage, timeline: TimelinePage, eda_hub: EdaDesignHub, schematic: SchematicEditor, pcb_layout: PcbLayoutEditor, gerber_view: GerberPreview, pcb_order: PcbOrderPage, parts_catalog: PartsCatalogPage, humanoid_atlas: HumanoidAtlasPage, supply_tree: SupplyTreePage, cad_design: CADDesignPage, design_to_quote: DesignToQuotePage };
 
 function Loading() { return <div style={{ textAlign: 'center', padding: 60, color: 'var(--text3)' }}>Loading...</div>; }
 

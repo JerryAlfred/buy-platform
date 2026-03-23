@@ -56,6 +56,8 @@ const dict = {
   'nav.parts_catalog': { en: 'Parts Catalog', zh: '零部件目录' },
   'nav.humanoid_atlas': { en: 'Humanoid Atlas', zh: '人形机器人地图' },
   'nav.supply_tree': { en: 'Supply Tree', zh: '供应链树' },
+  'nav.cad_design': { en: '3D CAD Design', zh: '3D CAD 设计' },
+  'nav.design_to_quote': { en: 'Design → Quote', zh: '设计→报价' },
   'nav.eda': { en: 'EDA Design', zh: 'EDA 设计' },
   'nav.eda_hub': { en: 'Design Hub', zh: '设计中心' },
   'nav.schematic': { en: 'Schematic', zh: '原理图' },

@@ -231,3 +231,19 @@ export const fetchPcbOrder = (id) => get(`${PCB}/orders/${id}`);
 export const updatePcbOrder = (id, d) => patch(`${PCB}/orders/${id}`, d);
 export const confirmPcbOrder = (id) => post(`${PCB}/orders/${id}/confirm`, {});
 export const fetchPcbVendorOptions = () => get(`${PCB}/vendor-options`);
+
+// ── 3D CAD Design ────────────────────────────────────────────────────
+const CAD = `${API}/api/cad-design`;
+
+export const fetchCadTemplates = () => get(`${CAD}/templates`);
+export const fetchCadMaterials = (cat) => get(`${CAD}/materials${cat ? `?category=${cat}` : ''}`);
+export const fetchCadProcesses = () => get(`${CAD}/processes`);
+export const estimateCadCost = (body) => post(`${CAD}/estimate`, body);
+export const createCadDesign = (body) => post(`${CAD}/designs`, body);
+export const listCadDesigns = () => get(`${CAD}/designs`);
+export const getCadDesign = (id) => get(`${CAD}/designs/${id}`);
+export const updateCadDesign = (id, body) => patch(`${CAD}/designs/${id}`, body);
+export const exportCadDesign = (id, fmt = 'step') => post(`${CAD}/designs/${id}/export?format=${fmt}`, {});
+export const generateCadRfq = (id) => post(`${CAD}/designs/${id}/generate-rfq`, {});
+export const quickCadRfq = (body) => post(`${CAD}/quick-rfq`, body);
+export const fetchCadStats = () => get(`${CAD}/stats`);
