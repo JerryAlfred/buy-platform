@@ -117,9 +117,9 @@ export default function EdaDesignHub() {
                   <span>Updated {p.updated_at ? new Date(p.updated_at).toLocaleDateString() : '—'}</span>
                 </div>
                 <div style={{ display: 'flex', gap: 6 }}>
-                  <button className="btn-sm" style={{ background: 'rgba(59,130,246,.15)', color: 'var(--accent)' }}>Schematic</button>
-                  <button className="btn-sm" style={{ background: 'rgba(59,130,246,.15)', color: 'var(--accent)' }}>PCB</button>
-                  <button className="btn-sm" style={{ background: 'rgba(34,197,94,.15)', color: 'var(--green)' }}>Order</button>
+                  <button className="btn-sm" style={{ background: 'rgba(59,130,246,.15)', color: 'var(--accent)' }} onClick={(e) => { e.stopPropagation(); window.__edaProjectId = p.id; document.dispatchEvent(new CustomEvent('nav', { detail: 'schematic' })); }}>Schematic</button>
+                  <button className="btn-sm" style={{ background: 'rgba(59,130,246,.15)', color: 'var(--accent)' }} onClick={(e) => { e.stopPropagation(); window.__edaProjectId = p.id; document.dispatchEvent(new CustomEvent('nav', { detail: 'pcb_layout' })); }}>PCB</button>
+                  <button className="btn-sm" style={{ background: 'rgba(34,197,94,.15)', color: 'var(--green)' }} onClick={(e) => { e.stopPropagation(); window.__edaProjectId = p.id; document.dispatchEvent(new CustomEvent('nav', { detail: 'pcb_order' })); }}>Order</button>
                   <button className="btn-sm" style={{ background: 'rgba(239,68,68,.15)', color: 'var(--red)' }} onClick={(e) => { e.stopPropagation(); handleDelete(p.id); }}>Del</button>
                 </div>
               </div>

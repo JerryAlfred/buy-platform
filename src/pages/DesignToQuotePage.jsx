@@ -215,7 +215,7 @@ export default function DesignToQuotePage() {
           </div>
           <div style={{ display: 'flex', gap: 10, justifyContent: 'center', marginTop: 20 }}>
             <button className="btn btn-secondary" onClick={() => { setStep(1); setParts([]); setRfq(null); setQuotes(null); setSelectedSuppliers({}); }}>New Design</button>
-            <button className="btn btn-primary">View Order Tracking</button>
+            <button className="btn btn-primary" onClick={() => document.dispatchEvent(new CustomEvent('nav', { detail: 'orders' }))}>View Order Tracking</button>
           </div>
         </div>
       )}

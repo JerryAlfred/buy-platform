@@ -440,10 +440,58 @@ function RFQPage() {
 // ═══════════════════════════════════════════════════════════════════════════
 
 function SuppliersPage() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const [list, setList] = useState([]);
+  const [sel, setSel] = useState(null);
   useEffect(() => { api.fetchSuppliers().then(d => setList(d.suppliers || [])).catch(() => {}); }, []);
-  return (<><h2 className="page-title">{t('supp.title')}</h2><p className="page-sub">{t('supp.sub')}</p><div className="grid-3">{list.map(s => <div key={s.id} className="card"><strong>{s.name}</strong><div style={{ fontSize: '.82rem', color: 'var(--text2)' }}>{s.platform} · {s.location}</div><div style={{ display: 'flex', gap: 8, marginTop: 4, fontSize: '.78rem' }}><span>Quality: {s.quality_score}/5</span><span>Price: {s.price_score}/5</span><span>Speed: {s.response_speed_score}/5</span></div><div style={{ fontSize: '.78rem', color: 'var(--text3)', marginTop: 4 }}>{s.total_orders} orders · ${s.total_spend_usd?.toFixed(0)} spent</div></div>)}</div>{!list.length && <div className="panel" style={{ textAlign: 'center', padding: 40, color: 'var(--text3)' }}>No suppliers yet. Add via Expert Memory or Marketplace.</div>}</>);
+  return (<>
+    <h2 className="page-title">{t('supp.title')}</h2>
+    <p className="page-sub">{t('supp.sub')}</p>
+    <div className="grid-3">{list.map(s => (
+      <div key={s.id} className="card" style={{ cursor: 'pointer', transition: 'border-color .2s' }} onClick={() => setSel(s)}>
+        <strong>{s.name}</strong>
+        <div style={{ fontSize: '.82rem', color: 'var(--text2)' }}>{s.platform} · {s.location}</div>
+        <div style={{ display: 'flex', gap: 8, marginTop: 4, fontSize: '.78rem' }}>
+          <span>{lang === 'zh' ? '质量' : 'Quality'}: {s.quality_score}/5</span>
+          <span>{lang === 'zh' ? '价格' : 'Price'}: {s.price_score}/5</span>
+          <span>{lang === 'zh' ? '速度' : 'Speed'}: {s.response_speed_score}/5</span>
+        </div>
+        <div style={{ fontSize: '.78rem', color: 'var(--text3)', marginTop: 4 }}>{s.total_orders} {lang === 'zh' ? '个订单' : 'orders'} · ${s.total_spend_usd?.toFixed(0)} {lang === 'zh' ? '消费' : 'spent'}</div>
+      </div>
+    ))}</div>
+    {!list.length && <div className="panel" style={{ textAlign: 'center', padding: 40, color: 'var(--text3)' }}>{lang === 'zh' ? '暂无供应商。通过专家知识库或市场添加。' : 'No suppliers yet. Add via Expert Memory or Marketplace.'}</div>}
+    {sel && (
+      <div className="modal-overlay" onClick={() => setSel(null)}>
+        <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 560 }}>
+          <h3 style={{ marginBottom: 16 }}>{sel.name}</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 16 }}>
+            <div><div style={{ fontSize: '.75rem', color: 'var(--text3)' }}>{lang === 'zh' ? '平台' : 'Platform'}</div><div style={{ fontWeight: 600 }}>{sel.platform}</div></div>
+            <div><div style={{ fontSize: '.75rem', color: 'var(--text3)' }}>{lang === 'zh' ? '位置' : 'Location'}</div><div style={{ fontWeight: 600 }}>{sel.location || '—'}</div></div>
+            <div><div style={{ fontSize: '.75rem', color: 'var(--text3)' }}>{lang === 'zh' ? '总订单' : 'Total Orders'}</div><div style={{ fontWeight: 600 }}>{sel.total_orders || 0}</div></div>
+            <div><div style={{ fontSize: '.75rem', color: 'var(--text3)' }}>{lang === 'zh' ? '总消费' : 'Total Spend'}</div><div style={{ fontWeight: 600 }}>${sel.total_spend_usd?.toFixed(0) || 0}</div></div>
+          </div>
+          <div style={{ fontWeight: 600, marginBottom: 8, fontSize: '.88rem' }}>{lang === 'zh' ? '评分' : 'Scores'}</div>
+          <div style={{ display: 'flex', gap: 10, marginBottom: 16 }}>
+            {[
+              { label: lang === 'zh' ? '质量' : 'Quality', val: sel.quality_score },
+              { label: lang === 'zh' ? '价格' : 'Price', val: sel.price_score },
+              { label: lang === 'zh' ? '响应速度' : 'Response', val: sel.response_speed_score },
+            ].map(sc => (
+              <div key={sc.label} style={{ flex: 1, padding: 10, background: 'var(--bg)', borderRadius: 8, textAlign: 'center' }}>
+                <div style={{ fontSize: '.72rem', color: 'var(--text3)' }}>{sc.label}</div>
+                <div style={{ fontSize: '1.2rem', fontWeight: 700, color: (sc.val || 0) >= 4 ? 'var(--green)' : (sc.val || 0) >= 3 ? 'var(--yellow)' : 'var(--red)' }}>{sc.val?.toFixed(1) || '—'}/5</div>
+              </div>
+            ))}
+          </div>
+          {sel.contact_info && <div style={{ fontSize: '.82rem', color: 'var(--text2)', marginBottom: 12 }}>{lang === 'zh' ? '联系方式' : 'Contact'}: {sel.contact_info}</div>}
+          {sel.notes && <div style={{ fontSize: '.82rem', color: 'var(--text2)', marginBottom: 12 }}>{lang === 'zh' ? '备注' : 'Notes'}: {sel.notes}</div>}
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+            <button className="btn btn-secondary" onClick={() => setSel(null)}>{lang === 'zh' ? '关闭' : 'Close'}</button>
+          </div>
+        </div>
+      </div>
+    )}
+  </>);
 }
 
 function RelationshipsPage() {
@@ -495,6 +543,7 @@ function MarketplacePage() {
   const [requests, setRequests] = useState([]);
   const [listings, setListings] = useState([]);
   const [matches, setMatches] = useState(null);
+  const [selListing, setSelListing] = useState(null);
 
   useEffect(() => {
     api.fetchBuyerRequests().then(d => setRequests(d.requests || [])).catch(() => {});
@@ -537,11 +586,32 @@ function MarketplacePage() {
             </div>
           </div>
         )}
-        {matches?.matches?.length > 0 && <div className="panel"><div className="panel-title">Matched Listings ({matches.matches.length})</div>{matches.matches.map(m => <div key={m.listing_id} className="card" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, alignItems: 'center' }}><div><strong>{m.title}</strong><div style={{ fontSize: '.82rem', color: 'var(--text2)' }}>{m.seller_name} · ${m.unit_price_usd}/unit · MOQ: {m.moq} · {m.lead_time_days}d</div></div><div style={{ width: 48, height: 48, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, background: `${m.match_score >= 70 ? 'var(--green)' : 'var(--yellow)'}22`, color: m.match_score >= 70 ? 'var(--green)' : 'var(--yellow)' }}>{m.match_score}</div></div>)}</div>}
+        {matches?.matches?.length > 0 && <div className="panel"><div className="panel-title">Matched Listings ({matches.matches.length})</div>{matches.matches.map(m => <div key={m.listing_id} className="card" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, alignItems: 'center', cursor: 'pointer' }} onClick={() => setSelListing({ title: m.title, seller_name: m.seller_name, unit_price_usd: m.unit_price_usd, moq: m.moq, lead_time_days: m.lead_time_days, category: m.category, location: m.location })}><div><strong>{m.title}</strong><div style={{ fontSize: '.82rem', color: 'var(--text2)' }}>{m.seller_name} · ${m.unit_price_usd}/unit · MOQ: {m.moq} · {m.lead_time_days}d</div></div><div style={{ width: 48, height: 48, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, background: `${m.match_score >= 70 ? 'var(--green)' : 'var(--yellow)'}22`, color: m.match_score >= 70 ? 'var(--green)' : 'var(--yellow)' }}>{m.match_score}</div></div>)}</div>}
         <div className="panel"><div className="panel-title">My Requests ({requests.length})</div>{requests.length ? <table style={{ width: '100%', borderCollapse: 'collapse' }}><thead><tr>{['Title','Mode','Category','Qty','Budget','Confidence','Status'].map(h => <th key={h} className="th">{h}</th>)}</tr></thead><tbody>{requests.map(r => <tr key={r.id}><td className="td" style={{ fontWeight: 600 }}>{r.parsed_title || r.raw_input?.slice(0, 40)}</td><td className="td"><span className="badge badge-blue">{r.input_mode}</span></td><td className="td">{r.parsed_category}</td><td className="td">{r.parsed_quantity}</td><td className="td">{r.parsed_budget_usd ? `$${r.parsed_budget_usd}` : '—'}</td><td className="td" style={{ color: r.ai_parse_confidence >= .8 ? 'var(--green)' : 'var(--yellow)' }}>{(r.ai_parse_confidence * 100).toFixed(0)}%</td><td className="td"><span className="badge badge-blue">{r.status}</span></td></tr>)}</tbody></table> : <div style={{ textAlign: 'center', padding: 30, color: 'var(--text3)' }}>Use the AI chat above to submit your first request</div>}</div>
       </>)}
 
-      {role === 'seller' && (<div className="panel"><div className="panel-title">Listings ({listings.length})</div><div className="grid-3">{listings.map(l => <div key={l.id} className="card"><strong>{l.title}</strong><div style={{ fontSize: '.82rem', color: 'var(--text2)' }}>{l.category} · MOQ: {l.moq} · {l.lead_time_days}d</div><div style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--green)', marginTop: 4 }}>${l.unit_price_usd}/unit</div><div style={{ fontSize: '.78rem', color: 'var(--text3)', marginTop: 4 }}>{l.seller_company || l.seller_name} · {l.location}</div></div>)}</div>{!listings.length && <div style={{ textAlign: 'center', padding: 30, color: 'var(--text3)' }}>No listings yet</div>}</div>)}
+      {role === 'seller' && (<div className="panel"><div className="panel-title">{t('mp.listings')} ({listings.length})</div><div className="grid-3">{listings.map(l => <div key={l.id} className="card" style={{ cursor: 'pointer' }} onClick={() => setSelListing(l)}><strong>{l.title}</strong><div style={{ fontSize: '.82rem', color: 'var(--text2)' }}>{l.category} · MOQ: {l.moq} · {l.lead_time_days}d</div><div style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--green)', marginTop: 4 }}>${l.unit_price_usd}/unit</div><div style={{ fontSize: '.78rem', color: 'var(--text3)', marginTop: 4 }}>{l.seller_company || l.seller_name} · {l.location}</div></div>)}</div>{!listings.length && <div style={{ textAlign: 'center', padding: 30, color: 'var(--text3)' }}>No listings yet</div>}</div>)}
+
+      {selListing && (
+        <div className="modal-overlay" onClick={() => setSelListing(null)}>
+          <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 520 }}>
+            <h3 style={{ marginBottom: 16 }}>{selListing.title}</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
+              <div><div style={{ fontSize: '.75rem', color: 'var(--text3)' }}>{t('mp.category')}</div><div style={{ fontWeight: 600 }}>{selListing.category || '—'}</div></div>
+              <div><div style={{ fontSize: '.75rem', color: 'var(--text3)' }}>{t('mp.price')}</div><div style={{ fontWeight: 700, color: 'var(--green)', fontSize: '1.1rem' }}>${selListing.unit_price_usd}/unit</div></div>
+              <div><div style={{ fontSize: '.75rem', color: 'var(--text3)' }}>MOQ</div><div style={{ fontWeight: 600 }}>{selListing.moq || '—'}</div></div>
+              <div><div style={{ fontSize: '.75rem', color: 'var(--text3)' }}>{t('mp.leadTime')}</div><div style={{ fontWeight: 600 }}>{selListing.lead_time_days || '—'} days</div></div>
+              <div><div style={{ fontSize: '.75rem', color: 'var(--text3)' }}>{t('mp.seller')}</div><div style={{ fontWeight: 600 }}>{selListing.seller_company || selListing.seller_name}</div></div>
+              <div><div style={{ fontSize: '.75rem', color: 'var(--text3)' }}>{t('mp.location')}</div><div style={{ fontWeight: 600 }}>{selListing.location || '—'}</div></div>
+            </div>
+            {selListing.description && <div style={{ fontSize: '.85rem', color: 'var(--text2)', marginBottom: 12 }}>{selListing.description}</div>}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+              <button className="btn btn-secondary" onClick={() => setSelListing(null)}>Close</button>
+              <button className="btn btn-primary" onClick={() => { setChatInput(selListing.title + ' ' + (selListing.moq || '') + ' units'); setSelListing(null); setRole('buyer'); }}>Request Quote</button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
@@ -578,7 +648,13 @@ function AppShell() {
     return { groupKey: g.groupKey, group: t(g.groupKey), items: filtered, isCollapsed: sq ? false : !!collapsedGroups[g.groupKey] };
   }).filter(g => g.items.length > 0);
 
-  const handleNav = (id) => { setPage(id); setNavSearch(''); };
+  const handleNav = useCallback((id) => { setPage(id); setNavSearch(''); }, []);
+
+  useEffect(() => {
+    const handler = (e) => handleNav(e.detail);
+    document.addEventListener('nav', handler);
+    return () => document.removeEventListener('nav', handler);
+  }, [handleNav]);
 
   const InlinePage = INLINE_PAGES[page];
   const LazyPage = LAZY_PAGES[page];

@@ -4,7 +4,10 @@ import * as api from '../api';
 
 const TABS = [
   { id: 'live', icon: '📡', en: 'Live Dashboard', zh: '实时数据' },
+  { id: 'finance', icon: '💹', en: 'Pro Finance', zh: '专业金融' },
   { id: 'events', icon: '🌍', en: 'Global Events', zh: '全球事件' },
+  { id: 'rule_builder', icon: '⚙️', en: 'Rule Builder', zh: '规则编辑器' },
+  { id: 'push_config', icon: '📲', en: 'Push Config', zh: '推送配置' },
   { id: 'alerts', icon: '🚨', en: 'Alert Center', zh: '预警中心' },
   { id: 'resilience', icon: '🛡️', en: 'Supply Chain Resilience', zh: '供应链韧性' },
   { id: 'chains', icon: '🔗', en: 'Industry Chains', zh: '产业链影响' },
@@ -775,10 +778,461 @@ function PlaybookTab({ lang }) {
   );
 }
 
+/* ═══════ PRO FINANCE ═══════ */
+function ProFinanceTab({ lang }) {
+  const [watchlist, setWatchlist] = useState(null);
+  const [heatmap, setHeatmap] = useState(null);
+  const [calendar, setCalendar] = useState(null);
+  const [sources, setSources] = useState(null);
+  const [selSymbol, setSelSymbol] = useState('');
+  const [technicals, setTechnicals] = useState(null);
+  const [companyNews, setCompanyNews] = useState(null);
+
+  useEffect(() => {
+    Promise.all([
+      api.fetchFinanceWatchlist().catch(() => null),
+      api.fetchSectorHeatmap().catch(() => null),
+      api.fetchEconomicCalendar().catch(() => null),
+      api.fetchDataSourcesStatus().catch(() => null),
+    ]).then(([w, h, cal, src]) => { setWatchlist(w); setHeatmap(h); setCalendar(cal); setSources(src); });
+  }, []);
+
+  const loadSymbol = async (sym) => {
+    setSelSymbol(sym);
+    const [t, n] = await Promise.all([api.fetchFinanceTechnicals(sym).catch(() => null), api.fetchCompanyNews(sym).catch(() => null)]);
+    setTechnicals(t); setCompanyNews(n);
+  };
+
+  if (!watchlist) return <p style={{ color: 'var(--text3)' }}>Loading finance data...</p>;
+
+  const wl = watchlist.watchlist || [];
+  const cats = watchlist.categories || [];
+
+  return (
+    <div>
+      {sources && (
+        <div style={{ display: 'flex', gap: 6, marginBottom: 12, flexWrap: 'wrap' }}>
+          {(sources.sources || []).map(s => (
+            <span key={s.name} style={{ ...c.badge(s.connected ? '#22c55e' : '#6b7280'), fontSize: '.62rem' }}>
+              {s.connected ? '🟢' : '⚪'} {s.name} {s.configured ? `(${s.tier})` : '(not configured)'}
+            </span>
+          ))}
+        </div>
+      )}
+
+      <div style={{ display: 'grid', gridTemplateColumns: selSymbol ? '2fr 1fr' : '1fr', gap: 16, marginBottom: 16 }}>
+        <div>
+          {cats.map(cat => (
+            <div key={cat} style={{ ...c.card, marginBottom: 10 }}>
+              <div style={{ fontWeight: 700, marginBottom: 6, textTransform: 'capitalize' }}>{cat === 'equities' ? '🏢' : cat === 'commodities' ? '🪙' : cat === 'indices' ? '📊' : '₿'} {cat}</div>
+              {wl.filter(w => w.category === cat).map(q => (
+                <div key={q.symbol} onClick={() => loadSymbol(q.symbol)} style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 0', borderBottom: '1px solid var(--border)', fontSize: '.78rem', cursor: 'pointer', background: selSymbol === q.symbol ? 'rgba(59,130,246,.06)' : 'transparent' }}>
+                  <div>
+                    <span style={{ fontWeight: 600 }}>{q.name}</span>
+                    <span style={{ marginLeft: 6, fontSize: '.64rem', color: 'var(--text3)' }}>{q.symbol}</span>
+                    <span style={{ marginLeft: 4, fontSize: '.56rem', color: 'var(--text3)' }}>{q.source}</span>
+                  </div>
+                  <div style={{ display: 'flex', gap: 10 }}>
+                    <span>{typeof q.price === 'number' ? q.price.toLocaleString() : q.price}</span>
+                    <span style={{ fontWeight: 700, color: c.changeColor(q.change_pct), minWidth: 55, textAlign: 'right' }}>{q.change_pct > 0 ? '+' : ''}{q.change_pct}%</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+        {selSymbol && (
+          <div>
+            {technicals && (
+              <div style={{ ...c.card, marginBottom: 10 }}>
+                <div style={{ fontWeight: 700, marginBottom: 6 }}>📐 {selSymbol} Technical Analysis</div>
+                <div style={{ fontSize: '.68rem', color: 'var(--text3)', marginBottom: 6 }}>Source: {technicals.source}</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
+                  <div style={{ padding: '6px 8px', background: 'var(--bg)', borderRadius: 6 }}>
+                    <div style={{ fontSize: '.64rem', color: 'var(--text3)' }}>RSI (14)</div>
+                    <div style={{ fontWeight: 700, color: technicals.indicators?.rsi_14?.value > 70 ? '#ef4444' : technicals.indicators?.rsi_14?.value < 30 ? '#22c55e' : 'var(--text)' }}>{technicals.indicators?.rsi_14?.value}</div>
+                    <div style={{ fontSize: '.6rem' }}>{technicals.indicators?.rsi_14?.signal}</div>
+                  </div>
+                  <div style={{ padding: '6px 8px', background: 'var(--bg)', borderRadius: 6 }}>
+                    <div style={{ fontSize: '.64rem', color: 'var(--text3)' }}>MACD</div>
+                    <div style={{ fontWeight: 700, color: technicals.indicators?.macd?.trend === 'bullish' ? '#22c55e' : '#ef4444' }}>{technicals.indicators?.macd?.histogram}</div>
+                    <div style={{ fontSize: '.6rem' }}>{technicals.indicators?.macd?.trend}</div>
+                  </div>
+                  <div style={{ padding: '6px 8px', background: 'var(--bg)', borderRadius: 6 }}>
+                    <div style={{ fontSize: '.64rem', color: 'var(--text3)' }}>SMA 20</div>
+                    <div style={{ fontWeight: 700 }}>{technicals.indicators?.sma_20?.value}</div>
+                  </div>
+                  <div style={{ padding: '6px 8px', background: 'var(--bg)', borderRadius: 6 }}>
+                    <div style={{ fontSize: '.64rem', color: 'var(--text3)' }}>Bollinger</div>
+                    <div style={{ fontWeight: 700, fontSize: '.72rem' }}>{technicals.indicators?.bollinger?.lower} — {technicals.indicators?.bollinger?.upper}</div>
+                  </div>
+                </div>
+                <div style={{ marginTop: 8, padding: '6px 10px', background: technicals.summary?.trend === 'bullish' ? 'rgba(34,197,94,.06)' : technicals.summary?.trend === 'bearish' ? 'rgba(239,68,68,.06)' : 'var(--bg)', borderRadius: 6, textAlign: 'center' }}>
+                  <span style={{ fontWeight: 700, color: technicals.summary?.trend === 'bullish' ? '#22c55e' : technicals.summary?.trend === 'bearish' ? '#ef4444' : 'var(--text2)' }}>
+                    {technicals.summary?.recommendation} — {technicals.summary?.trend} ({technicals.summary?.strength})
+                  </span>
+                </div>
+              </div>
+            )}
+            {companyNews && (
+              <div style={c.card}>
+                <div style={{ fontWeight: 700, marginBottom: 6 }}>📰 {selSymbol} News</div>
+                {(companyNews.news || []).slice(0, 5).map((n, i) => (
+                  <div key={i} style={{ padding: '4px 0', borderBottom: '1px solid var(--border)', fontSize: '.72rem' }}>
+                    <a href={n.url} target="_blank" rel="noreferrer" style={{ color: 'var(--accent)', textDecoration: 'none', fontWeight: 600 }}>{n.headline?.slice(0, 80)}</a>
+                    <div style={{ fontSize: '.62rem', color: 'var(--text3)' }}>
+                      {n.source} · <span style={{ color: n.sentiment === 'positive' ? '#22c55e' : n.sentiment === 'negative' ? '#ef4444' : 'var(--text3)' }}>{n.sentiment}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+        {heatmap && (
+          <div style={c.card}>
+            <div style={{ fontWeight: 700, marginBottom: 8 }}>🔥 Sector Heatmap</div>
+            {(heatmap.sectors || []).map(s => (
+              <div key={s.sector} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '4px 0', borderBottom: '1px solid var(--border)', fontSize: '.74rem' }}>
+                <span style={{ fontWeight: 600 }}>{s.sector}</span>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                  <div style={{ width: 60, height: 6, background: 'var(--border)', borderRadius: 3, overflow: 'hidden' }}>
+                    <div style={{ width: `${Math.min(Math.abs(s.change_pct) * 10, 100)}%`, height: 6, background: s.change_pct > 0 ? '#22c55e' : '#ef4444', borderRadius: 3 }} />
+                  </div>
+                  <span style={{ fontWeight: 700, color: c.changeColor(s.change_pct), minWidth: 50, textAlign: 'right' }}>{s.change_pct > 0 ? '+' : ''}{s.change_pct}%</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+        {calendar && (
+          <div style={c.card}>
+            <div style={{ fontWeight: 700, marginBottom: 8 }}>📅 Economic Calendar</div>
+            {(calendar.events || []).map((ev, i) => (
+              <div key={i} style={{ padding: '6px 0', borderBottom: '1px solid var(--border)', fontSize: '.72rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
+                  <span style={{ fontWeight: 600 }}>{ev.event}</span>
+                  <span style={c.badge(ev.importance === 'critical' ? '#ef4444' : ev.importance === 'high' ? '#f59e0b' : '#3b82f6')}>{ev.importance}</span>
+                </div>
+                <div style={{ color: 'var(--text3)', fontSize: '.64rem' }}>{ev.date} {ev.time} · Forecast: {ev.forecast} · Prev: {ev.previous}</div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ═══════ PUSH CONFIG ═══════ */
+function PushConfigTab({ lang }) {
+  const [config, setConfig] = useState(null);
+  const [pushLog, setPushLog] = useState([]);
+  const [testChannel, setTestChannel] = useState('');
+  const [testTo, setTestTo] = useState('');
+  const [testResult, setTestResult] = useState(null);
+  const [urls, setUrls] = useState({ feishu: '', wechat: '', slack: '', discord: '', generic: '' });
+
+  useEffect(() => {
+    api.fetchPushConfig().then(setConfig).catch(() => {});
+    api.fetchPushLog(20).then(d => setPushLog(d.log || [])).catch(() => {});
+  }, []);
+
+  const runTest = async () => {
+    if (!testChannel) return;
+    const res = await api.testPushChannel({ channel: testChannel, to: testTo || undefined }).catch(() => ({ success: false, error: 'Failed' }));
+    setTestResult(res);
+  };
+
+  const saveUrls = async () => {
+    const d = {};
+    if (urls.feishu) d.feishu_url = urls.feishu;
+    if (urls.wechat) d.wechat_url = urls.wechat;
+    if (urls.slack) d.slack_url = urls.slack;
+    if (urls.discord) d.discord_url = urls.discord;
+    if (urls.generic) d.generic_url = urls.generic;
+    d.channel = 'all';
+    const res = await api.updatePushConfig(d).catch(() => null);
+    if (res) setConfig(res.config || res);
+  };
+
+  if (!config) return <p style={{ color: 'var(--text3)' }}>Loading push config...</p>;
+  const channels = config.channels || {};
+
+  return (
+    <div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+        <div style={c.card}>
+          <div style={{ fontWeight: 700, marginBottom: 10 }}>📲 {lang === 'zh' ? '推送渠道状态' : 'Push Channels Status'}</div>
+          {Object.entries(channels).map(([id, ch]) => (
+            <div key={id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: '1px solid var(--border)' }}>
+              <div>
+                <span style={{ fontWeight: 600, fontSize: '.82rem' }}>{ch.description?.split(' — ')[0]}</span>
+                <div style={{ fontSize: '.66rem', color: 'var(--text3)' }}>{ch.description?.split(' — ')[1]}</div>
+              </div>
+              <span style={c.badge(ch.enabled ? '#22c55e' : '#6b7280')}>{ch.enabled ? 'Connected' : 'Not configured'}</span>
+            </div>
+          ))}
+        </div>
+        <div>
+          <div style={{ ...c.card, marginBottom: 10 }}>
+            <div style={{ fontWeight: 700, marginBottom: 8 }}>🔗 {lang === 'zh' ? '配置 Webhook URL' : 'Configure Webhooks'}</div>
+            {[['feishu', 'Feishu Webhook URL'], ['wechat', 'WeChat Work Webhook URL'], ['slack', 'Slack Webhook URL'], ['discord', 'Discord Webhook URL'], ['generic', 'Custom Webhook URL']].map(([k, label]) => (
+              <div key={k} style={{ marginBottom: 6 }}>
+                <label style={{ fontSize: '.7rem', color: 'var(--text3)' }}>{label}</label>
+                <input value={urls[k]} onChange={e => setUrls(u => ({ ...u, [k]: e.target.value }))} placeholder={`https://...`} style={{ width: '100%', padding: '5px 8px', borderRadius: 6, border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', fontSize: '.74rem' }} />
+              </div>
+            ))}
+            <button onClick={saveUrls} style={{ padding: '6px 16px', borderRadius: 6, background: 'var(--accent)', color: '#fff', border: 'none', cursor: 'pointer', fontSize: '.76rem', fontWeight: 600, marginTop: 4 }}>Save Webhooks</button>
+          </div>
+
+          <div style={c.card}>
+            <div style={{ fontWeight: 700, marginBottom: 8 }}>🧪 {lang === 'zh' ? '测试推送' : 'Test Push'}</div>
+            <div style={{ display: 'flex', gap: 6, marginBottom: 6 }}>
+              <select value={testChannel} onChange={e => setTestChannel(e.target.value)} style={{ flex: 1, padding: '5px 8px', borderRadius: 6, border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', fontSize: '.74rem' }}>
+                <option value="">Select channel</option>
+                {Object.keys(channels).map(id => <option key={id} value={id}>{id.replace(/_/g, ' ')}</option>)}
+              </select>
+              <input value={testTo} onChange={e => setTestTo(e.target.value)} placeholder="phone/email (optional)" style={{ flex: 1, padding: '5px 8px', borderRadius: 6, border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', fontSize: '.74rem' }} />
+              <button onClick={runTest} style={{ padding: '5px 14px', borderRadius: 6, background: 'var(--accent)', color: '#fff', border: 'none', cursor: 'pointer', fontSize: '.74rem', fontWeight: 600 }}>Test</button>
+            </div>
+            {testResult && <div style={{ fontSize: '.72rem', color: testResult.success ? '#22c55e' : '#ef4444' }}>{testResult.success ? '✅ Push test successful' : `❌ ${testResult.error || 'Failed'}`}</div>}
+          </div>
+        </div>
+      </div>
+
+      <div style={c.card}>
+        <div style={{ fontWeight: 700, marginBottom: 8 }}>📋 {lang === 'zh' ? '推送历史' : 'Push Log'}</div>
+        {pushLog.length === 0 ? <div style={{ fontSize: '.76rem', color: 'var(--text3)' }}>No push history yet</div> : null}
+        {pushLog.map(l => (
+          <div key={l.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', borderBottom: '1px solid var(--border)', fontSize: '.72rem' }}>
+            <div>
+              <span style={c.badge(l.success ? '#22c55e' : '#ef4444')}>{l.success ? 'OK' : 'FAIL'}</span>
+              <span style={{ marginLeft: 6, fontWeight: 600 }}>{l.channel}</span>
+              <span style={{ marginLeft: 6, color: 'var(--text3)' }}>{l.title}</span>
+            </div>
+            <span style={{ color: 'var(--text3)', fontSize: '.64rem' }}>{l.timestamp?.slice(11, 19)}</span>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ marginTop: 12, ...c.card, background: 'rgba(59,130,246,.04)' }}>
+        <div style={{ fontWeight: 700, marginBottom: 6 }}>📧 {lang === 'zh' ? '高级推送配置（需设置环境变量）' : 'Advanced Push (requires env vars)'}</div>
+        <div style={{ fontSize: '.72rem', color: 'var(--text2)' }}>
+          <div>• <strong>Twilio SMS</strong>: Set <code>TWILIO_ACCOUNT_SID</code>, <code>TWILIO_AUTH_TOKEN</code>, <code>TWILIO_FROM_NUMBER</code></div>
+          <div>• <strong>SendGrid Email</strong>: Set <code>SENDGRID_API_KEY</code>, <code>SENDGRID_FROM_EMAIL</code></div>
+          <div>• <strong>Finnhub</strong>: Set <code>FINNHUB_API_KEY</code> (free at finnhub.io)</div>
+          <div>• <strong>Alpha Vantage</strong>: Set <code>ALPHA_VANTAGE_KEY</code> (free at alphavantage.co)</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════ VISUAL RULE BUILDER ═══════ */
+function RuleBuilderTab({ lang }) {
+  const [builderCfg, setBuilderCfg] = useState(null);
+  const [rules, setRules] = useState([]);
+  const [showCreate, setShowCreate] = useState(false);
+  const [dryResult, setDryResult] = useState(null);
+  const [history, setHistory] = useState([]);
+  const [newRule, setNewRule] = useState({ name: '', description: '', conditions: [{ metric: 'asset_change_pct', operator: 'gte', value: 5, asset: '' }], logic: 'AND', channels: ['in_app'], level: 'medium', cooldown_minutes: 60 });
+
+  useEffect(() => {
+    api.fetchRuleBuilderConfig().then(setBuilderCfg).catch(() => {});
+    api.fetchAlertRulesAll().then(d => setRules(d.rules || [])).catch(() => {});
+    api.fetchRuleHistory(20).then(d => setHistory(d.history || [])).catch(() => {});
+  }, []);
+
+  const addCondition = () => setNewRule(r => ({ ...r, conditions: [...r.conditions, { metric: 'asset_price', operator: 'gt', value: 0, asset: '' }] }));
+  const removeCondition = (i) => setNewRule(r => ({ ...r, conditions: r.conditions.filter((_, idx) => idx !== i) }));
+  const updateCondition = (i, field, val) => setNewRule(r => ({ ...r, conditions: r.conditions.map((c2, idx) => idx === i ? { ...c2, [field]: val } : c2) }));
+
+  const saveRule = async () => {
+    if (!newRule.name) return;
+    const res = await api.createAlertRuleV2(newRule).catch(() => null);
+    if (res?.success) {
+      setRules(prev => [...prev, res.rule]);
+      setShowCreate(false);
+      setNewRule({ name: '', description: '', conditions: [{ metric: 'asset_change_pct', operator: 'gte', value: 5, asset: '' }], logic: 'AND', channels: ['in_app'], level: 'medium', cooldown_minutes: 60 });
+    }
+  };
+
+  const toggleRule = async (id, active) => {
+    await api.updateAlertRule(id, { active: !active }).catch(() => {});
+    setRules(prev => prev.map(r => r.id === id ? { ...r, active: !active } : r));
+  };
+
+  const deleteRule = async (id) => {
+    const res = await api.deleteAlertRule(id).catch(() => ({ success: false }));
+    if (res.success) setRules(prev => prev.filter(r => r.id !== id));
+  };
+
+  const runDryRun = async () => {
+    const res = await api.dryRunRule({ conditions: newRule.conditions, logic: newRule.logic }).catch(() => null);
+    setDryResult(res);
+  };
+
+  const createFromTemplate = async (tplId) => {
+    const res = await api.createRuleFromTemplate(tplId).catch(() => null);
+    if (res?.success) setRules(prev => [...prev, res.rule]);
+  };
+
+  if (!builderCfg) return <p style={{ color: 'var(--text3)' }}>Loading rule builder...</p>;
+  const metrics = builderCfg.metrics || [];
+  const operators = builderCfg.operators || [];
+  const channelOpts = builderCfg.channels || [];
+  const levels = builderCfg.levels || [];
+
+  return (
+    <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+        <div>
+          <span style={{ fontWeight: 700 }}>{rules.length} rules</span>
+          <span style={{ marginLeft: 8, color: 'var(--text3)', fontSize: '.76rem' }}>{rules.filter(r => r.active).length} active</span>
+        </div>
+        <button onClick={() => setShowCreate(!showCreate)} style={{ padding: '6px 16px', borderRadius: 8, background: 'var(--accent)', color: '#fff', border: 'none', cursor: 'pointer', fontSize: '.78rem', fontWeight: 600 }}>
+          {showCreate ? '✕ Cancel' : '+ Create Rule'}
+        </button>
+      </div>
+
+      {showCreate && (
+        <div style={{ ...c.card, marginBottom: 16, borderLeft: '4px solid var(--accent)' }}>
+          <div style={{ fontWeight: 700, fontSize: '.92rem', marginBottom: 10 }}>🆕 {lang === 'zh' ? '创建预警规则' : 'Create Alert Rule'}</div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 10 }}>
+            <div>
+              <label style={{ fontSize: '.7rem', color: 'var(--text3)' }}>Rule Name</label>
+              <input value={newRule.name} onChange={e => setNewRule(r => ({ ...r, name: e.target.value }))} style={{ width: '100%', padding: '5px 8px', borderRadius: 6, border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', fontSize: '.76rem' }} />
+            </div>
+            <div>
+              <label style={{ fontSize: '.7rem', color: 'var(--text3)' }}>Description</label>
+              <input value={newRule.description} onChange={e => setNewRule(r => ({ ...r, description: e.target.value }))} style={{ width: '100%', padding: '5px 8px', borderRadius: 6, border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', fontSize: '.76rem' }} />
+            </div>
+          </div>
+
+          <div style={{ fontWeight: 600, fontSize: '.78rem', marginBottom: 6 }}>Conditions ({newRule.logic})</div>
+          {newRule.conditions.map((cond, i) => (
+            <div key={i} style={{ display: 'flex', gap: 6, marginBottom: 6, alignItems: 'center' }}>
+              {i > 0 && <select value={newRule.logic} onChange={e => setNewRule(r => ({ ...r, logic: e.target.value }))} style={{ padding: '4px 6px', borderRadius: 4, border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--accent)', fontSize: '.7rem', fontWeight: 700 }}><option value="AND">AND</option><option value="OR">OR</option></select>}
+              {i === 0 && <span style={{ width: 42, fontSize: '.7rem', color: 'var(--text3)' }}>IF</span>}
+              <select value={cond.metric} onChange={e => updateCondition(i, 'metric', e.target.value)} style={{ flex: 2, padding: '5px 6px', borderRadius: 6, border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', fontSize: '.72rem' }}>
+                {metrics.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
+              </select>
+              <input value={cond.asset} onChange={e => updateCondition(i, 'asset', e.target.value)} placeholder="Asset (e.g. NVDA)" style={{ flex: 1, padding: '5px 6px', borderRadius: 6, border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', fontSize: '.72rem' }} />
+              <select value={cond.operator} onChange={e => updateCondition(i, 'operator', e.target.value)} style={{ padding: '5px 6px', borderRadius: 6, border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', fontSize: '.72rem' }}>
+                {operators.map(o => <option key={o.id} value={o.id}>{o.label} ({o.name})</option>)}
+              </select>
+              <input type="number" value={cond.value} onChange={e => updateCondition(i, 'value', Number(e.target.value))} style={{ width: 60, padding: '5px 6px', borderRadius: 6, border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', fontSize: '.72rem' }} />
+              {newRule.conditions.length > 1 && <button onClick={() => removeCondition(i)} style={{ padding: '2px 6px', borderRadius: 4, border: '1px solid var(--border)', background: 'var(--bg)', cursor: 'pointer', fontSize: '.7rem' }}>✕</button>}
+            </div>
+          ))}
+          <button onClick={addCondition} style={{ padding: '3px 10px', borderRadius: 4, border: '1px dashed var(--border)', background: 'transparent', cursor: 'pointer', fontSize: '.7rem', color: 'var(--accent)', marginBottom: 10 }}>+ Add Condition</button>
+
+          <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
+            <div>
+              <label style={{ fontSize: '.7rem', color: 'var(--text3)' }}>Level</label>
+              <select value={newRule.level} onChange={e => setNewRule(r => ({ ...r, level: e.target.value }))} style={{ display: 'block', padding: '5px 8px', borderRadius: 6, border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', fontSize: '.74rem' }}>
+                {levels.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
+              </select>
+            </div>
+            <div>
+              <label style={{ fontSize: '.7rem', color: 'var(--text3)' }}>Cooldown (min)</label>
+              <input type="number" value={newRule.cooldown_minutes} onChange={e => setNewRule(r => ({ ...r, cooldown_minutes: Number(e.target.value) }))} style={{ display: 'block', width: 80, padding: '5px 8px', borderRadius: 6, border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', fontSize: '.74rem' }} />
+            </div>
+          </div>
+
+          <div style={{ marginBottom: 10 }}>
+            <label style={{ fontSize: '.7rem', color: 'var(--text3)' }}>Push Channels</label>
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 4 }}>
+              {channelOpts.map(ch => (
+                <button key={ch.id} onClick={() => setNewRule(r => ({ ...r, channels: r.channels.includes(ch.id) ? r.channels.filter(x => x !== ch.id) : [...r.channels, ch.id] }))} style={{ padding: '4px 10px', borderRadius: 6, border: newRule.channels.includes(ch.id) ? '2px solid var(--accent)' : '1px solid var(--border)', background: newRule.channels.includes(ch.id) ? 'rgba(59,130,246,.08)' : 'var(--bg)', cursor: 'pointer', fontSize: '.72rem' }}>
+                  {ch.icon} {ch.name}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button onClick={saveRule} style={{ padding: '6px 20px', borderRadius: 6, background: 'var(--accent)', color: '#fff', border: 'none', cursor: 'pointer', fontSize: '.78rem', fontWeight: 600 }}>💾 Save Rule</button>
+            <button onClick={runDryRun} style={{ padding: '6px 20px', borderRadius: 6, background: 'var(--card)', border: '1px solid var(--border)', cursor: 'pointer', fontSize: '.78rem' }}>🧪 Dry Run</button>
+          </div>
+
+          {dryResult && (
+            <div style={{ marginTop: 8, padding: '8px 10px', background: dryResult.overall_triggered ? 'rgba(239,68,68,.06)' : 'rgba(34,197,94,.06)', borderRadius: 6 }}>
+              <div style={{ fontWeight: 700, color: dryResult.overall_triggered ? '#ef4444' : '#22c55e', marginBottom: 4 }}>
+                {dryResult.overall_triggered ? '🔔 WOULD TRIGGER' : '✅ Would NOT trigger'}
+              </div>
+              {(dryResult.conditions || []).map((cnd, i) => (
+                <div key={i} style={{ fontSize: '.72rem', padding: '2px 0' }}>
+                  {cnd.triggered ? '🔴' : '🟢'} {cnd.metric} ({cnd.asset || '*'}) = <strong>{JSON.stringify(cnd.current_value)}</strong> {cnd.operator} {JSON.stringify(cnd.threshold)}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {(builderCfg.templates || []).length > 0 && !showCreate && (
+        <div style={{ ...c.card, marginBottom: 16 }}>
+          <div style={{ fontWeight: 700, marginBottom: 8 }}>📋 {lang === 'zh' ? '规则模板（一键创建）' : 'Rule Templates (one-click create)'}</div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 8 }}>
+            {(builderCfg.templates || []).map(tpl => (
+              <div key={tpl.id} style={{ padding: '8px 10px', border: '1px solid var(--border)', borderRadius: 8, fontSize: '.74rem' }}>
+                <div style={{ fontWeight: 600, marginBottom: 2 }}>{tpl.name}</div>
+                <div style={{ fontSize: '.66rem', color: 'var(--text3)', marginBottom: 4 }}>{tpl.description}</div>
+                <button onClick={() => createFromTemplate(tpl.id)} style={{ padding: '3px 10px', borderRadius: 4, background: 'var(--accent)', color: '#fff', border: 'none', cursor: 'pointer', fontSize: '.66rem' }}>+ Create</button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div>
+        {rules.map(r => (
+          <div key={r.id} style={{ ...c.card, marginBottom: 8, borderLeft: `4px solid ${c.lvlColor(r.level)}`, opacity: r.active ? 1 : 0.5 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div>
+                <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginBottom: 3 }}>
+                  <span style={{ fontWeight: 700, fontSize: '.84rem' }}>{r.name}</span>
+                  <span style={c.badge(c.lvlColor(r.level))}>{r.level}</span>
+                  {r.system && <span style={c.badge('#6b7280')}>system</span>}
+                  <span style={c.badge(r.active ? '#22c55e' : '#6b7280')}>{r.active ? 'active' : 'disabled'}</span>
+                </div>
+                <div style={{ fontSize: '.7rem', color: 'var(--text3)', marginBottom: 4 }}>{r.description}</div>
+                <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginBottom: 4 }}>
+                  {(r.conditions || []).map((cnd, i) => (
+                    <span key={i} style={{ padding: '2px 6px', background: 'var(--bg)', borderRadius: 4, fontSize: '.66rem' }}>
+                      {i > 0 && <strong style={{ color: 'var(--accent)' }}> {r.logic} </strong>}
+                      {cnd.metric} {cnd.asset !== '*' ? `(${cnd.asset})` : ''} {cnd.operator} {JSON.stringify(cnd.value)}
+                    </span>
+                  ))}
+                </div>
+                <div style={{ display: 'flex', gap: 4 }}>
+                  {(r.channels || []).map(ch => <span key={ch} style={{ ...c.badge('#3b82f6'), fontSize: '.58rem' }}>{ch}</span>)}
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+                <span style={{ fontSize: '.64rem', color: 'var(--text3)' }}>Triggers: {r.trigger_count}</span>
+                <button onClick={() => toggleRule(r.id, r.active)} style={{ padding: '3px 8px', borderRadius: 4, border: '1px solid var(--border)', background: 'var(--bg)', cursor: 'pointer', fontSize: '.64rem' }}>{r.active ? 'Disable' : 'Enable'}</button>
+                {!r.system && <button onClick={() => deleteRule(r.id)} style={{ padding: '3px 8px', borderRadius: 4, border: '1px solid #ef4444', background: 'rgba(239,68,68,.06)', cursor: 'pointer', fontSize: '.64rem', color: '#ef4444' }}>Delete</button>}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 const TAB_COMPS = {
-  live: LiveDashboardTab, events: EventsTab, alerts: AlertCenterTab,
-  resilience: ResilienceTab, chains: ChainsTab, ext_chains: ExtChainsTab,
-  markets: MarketsTab, signals: SignalsTab, playbook: PlaybookTab,
+  live: LiveDashboardTab, finance: ProFinanceTab, events: EventsTab,
+  rule_builder: RuleBuilderTab, push_config: PushConfigTab,
+  alerts: AlertCenterTab, resilience: ResilienceTab, chains: ChainsTab,
+  ext_chains: ExtChainsTab, markets: MarketsTab, signals: SignalsTab,
+  playbook: PlaybookTab,
 };
 
 export default function GeoIntelPage() {
@@ -790,16 +1244,16 @@ export default function GeoIntelPage() {
       <h2 style={{ margin: '0 0 4px' }}>🌐 {lang === 'zh' ? '天眼 · 全球地缘情报' : 'Sky Eye · Global GeoIntelligence'}</h2>
       <p style={{ color: 'var(--text3)', fontSize: '.82rem', margin: '0 0 16px' }}>
         {lang === 'zh'
-          ? '实时数据 · 预警中心 · 地缘政治 · 供应链韧性 · 10大产业链 · 实时行情 · 套利信号 · 历史追溯'
-          : 'Live Data · Alert Center · Geopolitics · Resilience · 10 Industry Chains · Live Markets · Signals · Playbook'}
+          ? '实时数据 · 专业金融 · 可视化规则 · 多渠道推送 · 预警中心 · 产业链 · 套利信号 · 历史追溯'
+          : 'Live Data · Pro Finance · Rule Builder · Multi-Channel Push · Alerts · Chains · Signals · Playbook'}
       </p>
-      <div style={{ display: 'flex', gap: 6, marginBottom: 16, overflowX: 'auto' }}>
+      <div style={{ display: 'flex', gap: 5, marginBottom: 16, overflowX: 'auto', paddingBottom: 4 }}>
         {TABS.map(t => (
           <button key={t.id} onClick={() => setTab(t.id)} style={{
-            padding: '8px 14px', borderRadius: 8, border: tab === t.id ? '2px solid var(--accent)' : '1px solid var(--border)',
+            padding: '7px 12px', borderRadius: 8, border: tab === t.id ? '2px solid var(--accent)' : '1px solid var(--border)',
             background: tab === t.id ? 'rgba(59,130,246,.08)' : 'var(--card)',
             color: tab === t.id ? 'var(--accent)' : 'var(--text2)',
-            cursor: 'pointer', fontWeight: tab === t.id ? 700 : 400, fontSize: '.78rem', whiteSpace: 'nowrap',
+            cursor: 'pointer', fontWeight: tab === t.id ? 700 : 400, fontSize: '.74rem', whiteSpace: 'nowrap',
           }}>
             {t.icon} {lang === 'zh' ? t.zh : t.en}
           </button>

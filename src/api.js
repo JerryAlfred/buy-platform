@@ -361,6 +361,36 @@ export const fetchPortfolio = () => get(`${V1}/ai-trading/portfolio`);
 export const closePosition = (d) => post(`${V1}/ai-trading/close-position`, d);
 export const runBacktest = (d) => post(`${V1}/ai-trading/backtest`, d);
 
+// ── Finance Data (Multi-source) ─────────────────────────────────────
+export const fetchFinanceQuote = (symbol = 'NVDA') => get(`${V1}/finance/quote?symbol=${symbol}`);
+export const fetchFinanceWatchlist = () => get(`${V1}/finance/watchlist`);
+export const fetchFinanceHistorical = (symbol = 'NVDA', days = 30) => get(`${V1}/finance/historical?symbol=${symbol}&days=${days}`);
+export const fetchFinanceTechnicals = (symbol = 'NVDA') => get(`${V1}/finance/technicals?symbol=${symbol}`);
+export const fetchCompanyNews = (symbol = 'NVDA') => get(`${V1}/finance/company-news?symbol=${symbol}`);
+export const fetchSectorHeatmap = () => get(`${V1}/finance/sector-heatmap`);
+export const fetchEconomicCalendar = () => get(`${V1}/finance/economic-calendar`);
+export const fetchCorrelationMatrix = () => get(`${V1}/finance/correlation-matrix`);
+export const fetchDataSourcesStatus = () => get(`${V1}/finance/data-sources-status`);
+
+// ── Push Engine (Twilio/SendGrid/Feishu/WeChat/Slack) ──────────────
+export const sendPush = (d) => post(`${V1}/push/send`, d);
+export const testPushChannel = (d) => post(`${V1}/push/test`, d);
+export const fetchPushConfig = () => get(`${V1}/push/config`);
+export const updatePushConfig = (d) => post(`${V1}/push/config`, d);
+export const fetchPushLog = (limit = 50) => get(`${V1}/push/log?limit=${limit}`);
+
+// ── Alert Rules Engine (Visual Builder) ────────────────────────────
+export const fetchRuleBuilderConfig = () => get(`${V1}/rules/builder-config`);
+export const fetchAlertRulesAll = (activeOnly = false) => get(`${V1}/rules?active_only=${activeOnly}`);
+export const getAlertRule = (id) => get(`${V1}/rules/${id}`);
+export const createAlertRuleV2 = (d) => post(`${V1}/rules`, d);
+export const updateAlertRule = (id, d) => patch(`${V1}/rules/${id}`, d);
+export const deleteAlertRule = (id) => del(`${V1}/rules/${id}`);
+export const dryRunRule = (d) => post(`${V1}/rules/dry-run`, d);
+export const fetchRuleHistory = (limit = 50) => get(`${V1}/rules/history?limit=${limit}`);
+export const fetchRuleTemplates = () => get(`${V1}/rules/templates`);
+export const createRuleFromTemplate = (tplId, name = '', asset = '', value = 0) => post(`${V1}/rules/from-template/${tplId}?name=${encodeURIComponent(name)}&asset=${encodeURIComponent(asset)}&value=${value}`, {});
+
 // ── Live Data (Real Sources) ────────────────────────────────────────
 export const fetchGdeltEvents = (p = {}) => get(`${V1}/live/gdelt-events${qs(p)}`);
 export const fetchLiveMarketPrices = () => get(`${V1}/live/market-prices`);
