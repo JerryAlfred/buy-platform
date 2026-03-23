@@ -361,6 +361,19 @@ export const fetchPortfolio = () => get(`${V1}/ai-trading/portfolio`);
 export const closePosition = (d) => post(`${V1}/ai-trading/close-position`, d);
 export const runBacktest = (d) => post(`${V1}/ai-trading/backtest`, d);
 
+// ── Live Data (Real Sources) ────────────────────────────────────────
+export const fetchGdeltEvents = (p = {}) => get(`${V1}/live/gdelt-events${qs(p)}`);
+export const fetchLiveMarketPrices = () => get(`${V1}/live/market-prices`);
+export const fetchLiveFxRates = (base = 'USD') => get(`${V1}/live/fx-rates?base=${base}`);
+export const fetchLiveNews = (p = {}) => get(`${V1}/live/news${qs(p)}`);
+export const fetchExtendedChains = () => get(`${V1}/live/industry-chains-extended`);
+export const fetchLiveAlerts = (p = {}) => get(`${V1}/live/alerts${qs(p)}`);
+export const fetchAlertRules = () => get(`${V1}/live/alert-rules`);
+export const createAlertRule = (d) => post(`${V1}/live/alert-rules`, d);
+export const markAlertRead = (id) => post(`${V1}/live/alerts/${id}/read`, {});
+export const testWebhook = (d) => post(`${V1}/live/webhook-test`, d);
+export const fetchLiveDashboard = () => get(`${V1}/live/dashboard`);
+
 // ── Parts Catalog ────────────────────────────────────────────────────
 const PC = `${API}/api/parts-catalog`;
 
