@@ -184,7 +184,9 @@ export const fetchRevenuePricing = () => get(`${TR}/revenue/pricing`);
 export const fetchRevenueProjections = () => get(`${TR}/revenue/projections`);
 
 // ── AI Agent ─────────────────────────────────────────────────────────
-export const agentChat = (message, lang = 'en', context = {}) => post(`${V1}/agent`, { message, lang, context });
+export const agentChat = (msg, lang = 'en', context = {}, history = [], session_id = '') =>
+  post(`${V1}/agent`, { message: msg, lang, context, history, session_id });
+export const fetchAgentAudit = (p = {}) => get(`${V1}/agent/audit${qs(p)}`);
 
 // ── Parts Catalog ────────────────────────────────────────────────────
 const PC = `${API}/api/parts-catalog`;

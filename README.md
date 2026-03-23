@@ -1,16 +1,62 @@
-# React + Vite
+# RobotBuy OS
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**AI-Native Supply Chain Procurement Platform**
 
-Currently, two official plugins are available:
+Live: [buy.roboticscenter.ai](https://buy.roboticscenter.ai)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Architecture
 
-## React Compiler
+```
+buy-platform/          ← This repo (frontend)
+  src/
+    pages/             ← 23+ page components
+    api.js             ← API client → backend
+    auth.jsx           ← Auth / RBAC
+    i18n.jsx           ← EN/ZH translations
+    App.jsx            ← App shell + navigation
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Backend: fearless-backend (separate repo)
+  /api/supply-chain/*
+  /api/marketplace/*
+  /api/supply-chain-ops/*
+  /api/supply-chain-trust/*
+```
 
-## Expanding the ESLint configuration
+## Pages
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+| Group | Pages |
+|-------|-------|
+| Command Center | Flywheel KPIs, Dashboard, Confidence System |
+| Transaction Layer | Marketplace, Exclusive Agency, RFQ Engine, AI Negotiation, BOM Router, Orchestration |
+| Execution Layer | Milestone Payments, Order Tracking, Production Verify, Cert & Compliance, Customer Portal |
+| Supplier Network | Suppliers, Expert Memory, Trust Scores, Credit System, Relationships, Intelligence |
+| AI Agents | Browser Agent, Supply Graph, Batch Crawler |
+| Operations | Supply Requests, Timeline |
+| Quality | Quality & Risk |
+| Finance & Revenue | Fulfillment, Payments & Finance, Revenue Hub |
+| System | Organization, Roles & Permissions, Account |
+
+## Development
+
+```bash
+npm install
+npm run dev          # http://localhost:5173
+npm run build        # Production build
+```
+
+## Deployment
+
+**Auto-deploy via Vercel Git Integration:**
+- Push to `main` → auto-deploys to [buy.roboticscenter.ai](https://buy.roboticscenter.ai)
+- PR → preview deployment
+
+**Manual deploy:**
+```bash
+vercel --prod
+```
+
+## Tech Stack
+
+- React 19 + Vite 8
+- Vercel (hosting + CDN)
+- Backend: FastAPI + SQLAlchemy (Google Cloud Run)
