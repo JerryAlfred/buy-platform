@@ -328,6 +328,19 @@ export const fetchTradeCredit = () => get(`${V1}/finance/trade-credit`);
 // ── Strategic Overview ──────────────────────────────────────────────
 export const fetchStrategyOverview = () => get(`${V1}/strategy/market-position`);
 
+// ── Revenue Engine ──────────────────────────────────────────────────
+export const fetchRevenueArch = () => get(`${V1}/revenue-arch/model`);
+export const fetchPackages = () => get(`${V1}/packages`);
+export const createPackageDeal = (d) => post(`${V1}/packages/deals`, d);
+export const fetchPackageDeals = () => get(`${V1}/packages/deals`);
+export const fetchPackagesPipeline = () => get(`${V1}/packages/pipeline`);
+export const fetchAttachOverview = () => get(`${V1}/attach/overview`);
+export const fetchRiskPricingEngine = () => get(`${V1}/risk-pricing/engine`);
+export const generateRiskQuote = (d) => post(`${V1}/risk-pricing/quote`, d);
+export const fetchGrowthMetrics = () => get(`${V1}/growth/metrics`);
+export const fetchActionBoard = () => get(`${V1}/actions/board`);
+export const simulateRevenue = (d) => post(`${V1}/growth/simulate`, d);
+
 // ── Parts Catalog ────────────────────────────────────────────────────
 const PC = `${API}/api/parts-catalog`;
 

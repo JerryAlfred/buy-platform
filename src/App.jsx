@@ -48,11 +48,14 @@ const ComponentSearchPage = lazy(() => import('./pages/ComponentSearchPage'));
 const MarketIntelligencePage = lazy(() => import('./pages/MarketIntelligencePage'));
 const ComplianceGuidePage = lazy(() => import('./pages/ComplianceGuidePage'));
 const PrototypeBundlePage = lazy(() => import('./pages/PrototypeBundlePage'));
+const APSSimulationPage = lazy(() => import('./pages/APSSimulationPage'));
+const BuyerSchedulePage = lazy(() => import('./pages/BuyerSchedulePage'));
 const LaunchpadPage = lazy(() => import('./pages/LaunchpadPage'));
 const QuickStartPage = lazy(() => import('./pages/QuickStartPage'));
 const LogisticsPage = lazy(() => import('./pages/LogisticsPage'));
 const AutoNegPage = lazy(() => import('./pages/AutoNegPage'));
 const InfraHubPage = lazy(() => import('./pages/InfraHubPage'));
+const RevenueOSPage = lazy(() => import('./pages/RevenueOSPage'));
 
 
 const NAV_DEF = [
@@ -61,6 +64,7 @@ const NAV_DEF = [
     { id: 'quick_start', labelKey: 'nav.quick_start', icon: '🚀' },
     { id: 'platform_intel', labelKey: 'nav.platform_intel', icon: '🧠' },
     { id: 'infra_hub', labelKey: 'nav.infra_hub', icon: '⚡' },
+    { id: 'revenue_os', labelKey: 'nav.revenue_os', icon: '💎' },
     { id: 'project_workspace', labelKey: 'nav.project_workspace', icon: '📋' },
   ]},
   { groupKey: 'nav.product_dev', collapsed: false, items: [
@@ -117,6 +121,8 @@ const NAV_DEF = [
     { id: 'payments', labelKey: 'nav.payments', icon: '💰' },
     { id: 'revenue', labelKey: 'nav.revenue', icon: '📈' },
     { id: 'mes_workbench', labelKey: 'nav.mes_workbench', icon: '☁️' },
+    { id: 'aps_simulation', labelKey: 'nav.aps_simulation', icon: '🧪' },
+    { id: 'buyer_schedule', labelKey: 'nav.buyer_schedule', icon: '📋' },
     { id: 'traceability', labelKey: 'nav.traceability', icon: '🔍' },
     { id: 'ai_analytics', labelKey: 'nav.ai_analytics', icon: '🤖' },
     { id: 'browser', labelKey: 'nav.browser', icon: '🌐' },
@@ -540,7 +546,7 @@ function MarketplacePage() {
 // ═══════════════════════════════════════════════════════════════════════════
 
 const INLINE_PAGES = { dashboard: DashboardPage, expert: ExpertPage, bom: BOMPage, rfq: RFQPage, suppliers: SuppliersPage, relationships: RelationshipsPage, quality: QualityPage, procurement: ProcurementPage, intelligence: IntelligencePage, marketplace: MarketplacePage };
-const LAZY_PAGES = { launchpad: LaunchpadPage, quick_start: QuickStartPage, confidence: ConfidencePage, negotiation: NegotiationPage, milestones: MilestonePage, verification: VerificationPage, orders: OrderTrackingPage, browser: BrowserAgentPage, graph: SupplyGraphPage, trust: TrustScorePage, agency: AgencyPage, compliance: CompliancePage, credit: CreditPage, portal: CustomerPortalPage, flywheel: FlywheelPage, fulfillment: FulfillmentPage, payments: PaymentsPage, revenue: RevenuePage, org: OrgManagementPage, roles: RolesPermissionsPage, account: AccountPage, crawler: CrawlerPage, requests: RequestsPage, timeline: TimelinePage, eda_hub: EdaDesignHub, schematic: SchematicEditor, pcb_layout: PcbLayoutEditor, gerber_view: GerberPreview, pcb_order: PcbOrderPage, parts_catalog: PartsCatalogPage, humanoid_atlas: HumanoidAtlasPage, supply_tree: SupplyTreePage, cad_design: CADDesignPage, design_to_quote: DesignToQuotePage, design_templates: DesignTemplatesPage, mes_workbench: MESWorkbenchPage, traceability: TraceabilityPage, ai_analytics: AIAnalyticsPage, logistics: LogisticsPage, auto_neg: AutoNegPage, project_workspace: ProjectWorkspacePage, product_wizard: ProductWizardPage, component_search: ComponentSearchPage, market_intel: MarketIntelligencePage, compliance_guide: ComplianceGuidePage, prototype_bundle: PrototypeBundlePage, platform_intel: PlatformIntelPage, infra_hub: InfraHubPage };
+const LAZY_PAGES = { launchpad: LaunchpadPage, quick_start: QuickStartPage, confidence: ConfidencePage, negotiation: NegotiationPage, milestones: MilestonePage, verification: VerificationPage, orders: OrderTrackingPage, browser: BrowserAgentPage, graph: SupplyGraphPage, trust: TrustScorePage, agency: AgencyPage, compliance: CompliancePage, credit: CreditPage, portal: CustomerPortalPage, flywheel: FlywheelPage, fulfillment: FulfillmentPage, payments: PaymentsPage, revenue: RevenuePage, org: OrgManagementPage, roles: RolesPermissionsPage, account: AccountPage, crawler: CrawlerPage, requests: RequestsPage, timeline: TimelinePage, eda_hub: EdaDesignHub, schematic: SchematicEditor, pcb_layout: PcbLayoutEditor, gerber_view: GerberPreview, pcb_order: PcbOrderPage, parts_catalog: PartsCatalogPage, humanoid_atlas: HumanoidAtlasPage, supply_tree: SupplyTreePage, cad_design: CADDesignPage, design_to_quote: DesignToQuotePage, design_templates: DesignTemplatesPage, mes_workbench: MESWorkbenchPage, traceability: TraceabilityPage, ai_analytics: AIAnalyticsPage, logistics: LogisticsPage, auto_neg: AutoNegPage, project_workspace: ProjectWorkspacePage, product_wizard: ProductWizardPage, component_search: ComponentSearchPage, market_intel: MarketIntelligencePage, compliance_guide: ComplianceGuidePage, prototype_bundle: PrototypeBundlePage, platform_intel: PlatformIntelPage, infra_hub: InfraHubPage, revenue_os: RevenueOSPage, aps_simulation: APSSimulationPage, buyer_schedule: BuyerSchedulePage };
 
 function Loading() { return <div style={{ textAlign: 'center', padding: 60, color: 'var(--text3)' }}>Loading...</div>; }
 

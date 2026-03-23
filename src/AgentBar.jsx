@@ -15,6 +15,8 @@ const EXAMPLES = {
     'Trace production status for PO #1',
     'Predict quote for 300 grippers',
     'Show me AI production analytics',
+    'Auto-schedule all pending orders for factory #1',
+    'Show buyer schedule for PO #3',
   ],
   zh: [
     '我想买10台 Unitree G1 人形机器人',
@@ -27,6 +29,8 @@ const EXAMPLES = {
     '追踪采购订单 #1 的生产状态',
     '帮我预测 300 个夹爪的报价',
     '展示 AI 生产分析数据',
+    '一键排产工厂 #1 所有待排工单',
+    '查看买家排产看板 PO #3',
   ],
 };
 
@@ -38,6 +42,7 @@ const ACTION_LABELS = {
     search_suppliers: 'Suppliers found', present_quotes: 'Quotes ready', order_summary: 'Order summary',
     mes_create_work_order: 'Work order created', mes_check_inventory: 'Inventory checked',
     mes_create_inspection: 'QC inspection created', mes_trace_order: 'Order traced',
+    aps_auto_schedule: 'Auto-scheduled', aps_buyer_view: 'Buyer schedule loaded',
   },
   zh: {
     create_rfq: '询价已创建', add_insight: '洞察已添加', start_negotiation: '议价已发起',
@@ -46,6 +51,7 @@ const ACTION_LABELS = {
     search_suppliers: '供应商已搜索', present_quotes: '报价已就绪', order_summary: '订单确认',
     mes_create_work_order: '工单已创建', mes_check_inventory: '库存已查询',
     mes_create_inspection: '质检记录已创建', mes_trace_order: '订单已追溯',
+    aps_auto_schedule: '已自动排产', aps_buyer_view: '买家排产已加载',
   },
 };
 
