@@ -167,6 +167,10 @@ const dict = {
   'mp.requests': { en: 'My Requests', zh: '我的需求' },
   'mp.listings': { en: 'Listings', zh: '商品列表' },
   'mp.matched': { en: 'Matched Listings', zh: '匹配结果' },
+  'mp.category': { en: 'Category', zh: '类别' },
+  'mp.price': { en: 'Unit Price', zh: '单价' },
+  'mp.leadTime': { en: 'Lead Time', zh: '交期' },
+  'mp.location': { en: 'Location', zh: '位置' },
 
   // ─── Agent Bar ────────────────────────────────────────────────────────
   'agent.placeholder': { en: 'Tell me what you need — I\'ll handle it. Try: "find 3 motor suppliers in Shenzhen under $15/unit"', zh: '告诉我你需要什么 — 我来处理。试试："帮我找3家深圳电机供应商，单价15美金以内"' },

@@ -18,12 +18,15 @@ export default function MESWorkbenchPage() {
   const [selectedFactory, setSelectedFactory] = useState(0);
   const [showModal, setShowModal] = useState(null);
   const [form, setForm] = useState({});
+  const [expandedWo, setExpandedWo] = useState(null);
+  const [toast, setToast] = useState('');
+  const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(''), 3000); };
 
   const load = useCallback(async () => {
     const fp = selectedFactory ? { factory_id: selectedFactory } : {};
-    try { setDash(await api.fetchMesDashboard(fp)); } catch {}
-    try { setFactories(await api.fetchMesFactories()); } catch {}
-    try { setWorkOrders(await api.fetchMesWorkOrders(fp)); } catch {}
+    try { setDash(await api.fetchMesDashboard(fp)); } catch (e) { showToast(lang === 'zh' ? '加载总览失败' : 'Dashboard load failed'); }
+    try { setFactories(await api.fetchMesFactories()); } catch (e) { showToast(lang === 'zh' ? '加载工厂失败' : 'Factory load failed'); }
+    try { setWorkOrders(await api.fetchMesWorkOrders(fp)); } catch (e) { showToast(lang === 'zh' ? '加载工单失败' : 'Work orders load failed'); }
     try { setInventory(await api.fetchMesInventory(fp)); } catch {}
     try { setQuality(await api.fetchMesQuality(fp)); } catch {}
     try { setSchedules(await api.fetchMesSchedules(fp)); } catch {}
@@ -39,7 +42,8 @@ export default function MESWorkbenchPage() {
       if (type === 'inventory') await api.createMesInventory({ ...form, factory_id: selectedFactory || form.factory_id });
       if (type === 'quality') await api.createMesQuality({ ...form, factory_id: selectedFactory || form.factory_id });
       setShowModal(null); setForm({}); load();
-    } catch {}
+      showToast(lang === 'zh' ? '创建成功！' : 'Created successfully!');
+    } catch (e) { showToast(lang === 'zh' ? '创建失败' : 'Failed to create'); }
   };
 
   const TABS = [
@@ -53,6 +57,7 @@ export default function MESWorkbenchPage() {
 
   return (
     <>
+      {toast && <div style={{ position: 'fixed', top: 20, right: 20, zIndex: 1000, padding: '12px 24px', background: toast.includes('失败') || toast.includes('failed') || toast.includes('Failed') ? 'var(--red)' : 'var(--green)', color: '#fff', borderRadius: 10, fontWeight: 600, boxShadow: '0 4px 20px rgba(0,0,0,.2)' }}>{toast}</div>}
       <h2 className="page-title">{lang === 'zh' ? '☁️ 云 MES 工作台' : '☁️ Cloud MES Workbench'}</h2>
       <p className="page-sub">{lang === 'zh' ? '供应商生产管理 · 排产 · 库存 · 质检 · 全流程追溯' : 'Supplier production management · Scheduling · Inventory · Quality · Full traceability'}</p>
 
@@ -110,25 +115,41 @@ export default function MESWorkbenchPage() {
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {workOrders.map(wo => (
-              <div key={wo.id} style={{ padding: '12px 16px', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 10 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ fontWeight: 600, fontSize: '.88rem' }}>{wo.wo_key}</span>
-                    <span style={{ padding: '2px 8px', borderRadius: 12, background: `${STATUS_COLORS[wo.status] || '#6b7280'}22`, color: STATUS_COLORS[wo.status], fontSize: '.72rem', fontWeight: 600 }}>{wo.status}</span>
-                    <span style={{ padding: '2px 8px', borderRadius: 12, background: `${PRIORITY_COLORS[wo.priority] || '#6b7280'}22`, color: PRIORITY_COLORS[wo.priority], fontSize: '.72rem' }}>{wo.priority}</span>
+              <div key={wo.id}>
+                <div style={{ padding: '12px 16px', background: expandedWo === wo.id ? 'rgba(59,130,246,.05)' : 'var(--bg)', border: '1px solid var(--border)', borderRadius: expandedWo === wo.id ? '10px 10px 0 0' : 10, cursor: 'pointer', transition: 'background .2s' }} onClick={() => setExpandedWo(expandedWo === wo.id ? null : wo.id)}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ fontWeight: 600, fontSize: '.88rem' }}>{wo.wo_key}</span>
+                      <span style={{ padding: '2px 8px', borderRadius: 12, background: `${STATUS_COLORS[wo.status] || '#6b7280'}22`, color: STATUS_COLORS[wo.status], fontSize: '.72rem', fontWeight: 600 }}>{wo.status}</span>
+                      <span style={{ padding: '2px 8px', borderRadius: 12, background: `${PRIORITY_COLORS[wo.priority] || '#6b7280'}22`, color: PRIORITY_COLORS[wo.priority], fontSize: '.72rem' }}>{wo.priority}</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ fontSize: '.78rem', color: 'var(--text3)' }}>{wo.created_at?.slice(0, 10)}</span>
+                      <span style={{ fontSize: '.72rem', color: 'var(--text3)' }}>{expandedWo === wo.id ? '▲' : '▼'}</span>
+                    </div>
                   </div>
-                  <span style={{ fontSize: '.78rem', color: 'var(--text3)' }}>{wo.created_at?.slice(0, 10)}</span>
-                </div>
-                <div style={{ fontSize: '.85rem', marginBottom: 6 }}>{wo.product}</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <div style={{ flex: 1, height: 6, background: 'var(--border)', borderRadius: 3 }}>
-                    <div style={{ height: '100%', width: `${wo.progress}%`, background: 'var(--accent)', borderRadius: 3, transition: 'width .3s' }} />
+                  <div style={{ fontSize: '.85rem', marginBottom: 6 }}>{wo.product}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <div style={{ flex: 1, height: 6, background: 'var(--border)', borderRadius: 3 }}>
+                      <div style={{ height: '100%', width: `${wo.progress}%`, background: 'var(--accent)', borderRadius: 3, transition: 'width .3s' }} />
+                    </div>
+                    <span style={{ fontSize: '.78rem', color: 'var(--text2)', whiteSpace: 'nowrap' }}>
+                      {wo.qty_completed}/{wo.qty_ordered} ({wo.progress}%)
+                    </span>
                   </div>
-                  <span style={{ fontSize: '.78rem', color: 'var(--text2)', whiteSpace: 'nowrap' }}>
-                    {wo.qty_completed}/{wo.qty_ordered} ({wo.progress}%)
-                  </span>
+                  {wo.stage && <div style={{ fontSize: '.75rem', color: 'var(--text3)', marginTop: 4 }}>{lang === 'zh' ? '阶段' : 'Stage'}: {wo.stage}</div>}
                 </div>
-                {wo.stage && <div style={{ fontSize: '.75rem', color: 'var(--text3)', marginTop: 4 }}>{lang === 'zh' ? '阶段' : 'Stage'}: {wo.stage}</div>}
+                {expandedWo === wo.id && (
+                  <div style={{ padding: '12px 16px', background: 'rgba(59,130,246,.03)', border: '1px solid var(--border)', borderTop: 'none', borderRadius: '0 0 10px 10px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, fontSize: '.82rem' }}>
+                      <div><span style={{ color: 'var(--text3)', fontSize: '.72rem' }}>ID</span><div style={{ fontWeight: 600 }}>#{wo.id}</div></div>
+                      <div><span style={{ color: 'var(--text3)', fontSize: '.72rem' }}>{lang === 'zh' ? '工厂' : 'Factory'}</span><div style={{ fontWeight: 600 }}>#{wo.factory_id}</div></div>
+                      <div><span style={{ color: 'var(--text3)', fontSize: '.72rem' }}>{lang === 'zh' ? 'PO 关联' : 'PO Link'}</span><div style={{ fontWeight: 600 }}>{wo.po_id ? `PO #${wo.po_id}` : '—'}</div></div>
+                      <div><span style={{ color: 'var(--text3)', fontSize: '.72rem' }}>{lang === 'zh' ? '更新时间' : 'Updated'}</span><div>{wo.updated_at?.slice(0, 10) || '—'}</div></div>
+                    </div>
+                    {wo.bom_snapshot && <div style={{ marginTop: 8, fontSize: '.78rem', color: 'var(--text2)' }}><strong>BOM:</strong> {typeof wo.bom_snapshot === 'string' ? wo.bom_snapshot : JSON.stringify(wo.bom_snapshot).slice(0, 150)}</div>}
+                  </div>
+                )}
               </div>
             ))}
             {workOrders.length === 0 && <div style={{ textAlign: 'center', color: 'var(--text3)', padding: 24, fontSize: '.85rem' }}>{lang === 'zh' ? '暂无工单' : 'No work orders yet'}</div>}

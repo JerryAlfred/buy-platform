@@ -378,6 +378,7 @@ export const testPushChannel = (d) => post(`${V1}/push/test`, d);
 export const fetchPushConfig = () => get(`${V1}/push/config`);
 export const updatePushConfig = (d) => post(`${V1}/push/config`, d);
 export const fetchPushLog = (limit = 50) => get(`${V1}/push/log?limit=${limit}`);
+export const fetchApiKeysStatus = () => get(`${V1}/push/api-keys-status`);
 
 // ── Alert Rules Engine (Visual Builder) ────────────────────────────
 export const fetchRuleBuilderConfig = () => get(`${V1}/rules/builder-config`);

@@ -931,39 +931,112 @@ function ProFinanceTab({ lang }) {
 function PushConfigTab({ lang }) {
   const [config, setConfig] = useState(null);
   const [pushLog, setPushLog] = useState([]);
+  const [keysStatus, setKeysStatus] = useState(null);
   const [testChannel, setTestChannel] = useState('');
   const [testTo, setTestTo] = useState('');
   const [testResult, setTestResult] = useState(null);
+  const [saveMsg, setSaveMsg] = useState('');
   const [urls, setUrls] = useState({ feishu: '', wechat: '', slack: '', discord: '', generic: '' });
+  const [keys, setKeys] = useState({ finnhub: '', alpha_vantage: '', twelve_data: '', twilio_sid: '', twilio_token: '', twilio_from: '', sendgrid_key: '', sendgrid_from: '' });
 
-  useEffect(() => {
+  const loadAll = () => {
     api.fetchPushConfig().then(setConfig).catch(() => {});
     api.fetchPushLog(20).then(d => setPushLog(d.log || [])).catch(() => {});
-  }, []);
+    api.fetchApiKeysStatus().then(setKeysStatus).catch(() => {});
+  };
+  useEffect(loadAll, []);
 
   const runTest = async () => {
     if (!testChannel) return;
     const res = await api.testPushChannel({ channel: testChannel, to: testTo || undefined }).catch(() => ({ success: false, error: 'Failed' }));
     setTestResult(res);
+    api.fetchPushLog(20).then(d => setPushLog(d.log || [])).catch(() => {});
   };
 
-  const saveUrls = async () => {
-    const d = {};
+  const saveAll = async () => {
+    const d = { channel: 'all' };
     if (urls.feishu) d.feishu_url = urls.feishu;
     if (urls.wechat) d.wechat_url = urls.wechat;
     if (urls.slack) d.slack_url = urls.slack;
     if (urls.discord) d.discord_url = urls.discord;
     if (urls.generic) d.generic_url = urls.generic;
-    d.channel = 'all';
+    if (keys.finnhub) d.finnhub_key = keys.finnhub;
+    if (keys.alpha_vantage) d.alpha_vantage_key = keys.alpha_vantage;
+    if (keys.twelve_data) d.twelve_data_key = keys.twelve_data;
+    if (keys.twilio_sid) d.twilio_sid = keys.twilio_sid;
+    if (keys.twilio_token) d.twilio_token = keys.twilio_token;
+    if (keys.twilio_from) d.twilio_from = keys.twilio_from;
+    if (keys.sendgrid_key) d.sendgrid_key = keys.sendgrid_key;
+    if (keys.sendgrid_from) d.sendgrid_from = keys.sendgrid_from;
+
     const res = await api.updatePushConfig(d).catch(() => null);
-    if (res) setConfig(res.config || res);
+    if (res?.success) {
+      setSaveMsg(`✅ ${(res.updated || []).length} settings saved: ${(res.updated || []).join(', ')}`);
+      setConfig(res.config || config);
+      api.fetchApiKeysStatus().then(setKeysStatus).catch(() => {});
+      setKeys({ finnhub: '', alpha_vantage: '', twelve_data: '', twilio_sid: '', twilio_token: '', twilio_from: '', sendgrid_key: '', sendgrid_from: '' });
+      setUrls({ feishu: '', wechat: '', slack: '', discord: '', generic: '' });
+    } else {
+      setSaveMsg('❌ Save failed');
+    }
+    setTimeout(() => setSaveMsg(''), 5000);
   };
 
   if (!config) return <p style={{ color: 'var(--text3)' }}>Loading push config...</p>;
   const channels = config.channels || {};
+  const ks = keysStatus?.keys || {};
 
   return (
     <div>
+      {keysStatus && (
+        <div style={{ ...c.card, marginBottom: 16, borderLeft: '4px solid #3b82f6' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
+            <span style={{ fontWeight: 700 }}>🔑 {lang === 'zh' ? '数据源 API Key 状态' : 'Data Source API Keys'}</span>
+            <span style={c.badge(keysStatus.configured_count > 0 ? '#22c55e' : '#f59e0b')}>{keysStatus.configured_count}/{keysStatus.total_count} configured</span>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 8, marginBottom: 12 }}>
+            {Object.entries(ks).map(([envKey, info]) => (
+              <div key={envKey} style={{ padding: '8px 10px', border: `1px solid ${info.set ? '#22c55e30' : 'var(--border)'}`, borderRadius: 8, background: info.set ? 'rgba(34,197,94,.04)' : 'var(--bg)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 3 }}>
+                  <span style={{ fontWeight: 700, fontSize: '.78rem' }}>{info.name}</span>
+                  <span style={{ fontSize: '.7rem' }}>{info.set ? '🟢' : '⚪'}</span>
+                </div>
+                <div style={{ fontSize: '.6rem', color: 'var(--text3)', marginBottom: 2 }}>{info.tier}</div>
+                <div style={{ fontSize: '.58rem', color: 'var(--text3)' }}>{info.features?.slice(0, 40)}</div>
+                {!info.set && <a href={info.register_url} target="_blank" rel="noreferrer" style={{ display: 'inline-block', marginTop: 4, padding: '2px 8px', borderRadius: 4, background: 'var(--accent)', color: '#fff', fontSize: '.6rem', textDecoration: 'none', fontWeight: 600 }}>Register Free</a>}
+              </div>
+            ))}
+          </div>
+
+          <div style={{ fontWeight: 600, fontSize: '.78rem', marginBottom: 6 }}>📝 {lang === 'zh' ? '输入 API Key（保存后立即生效）' : 'Enter API Keys (effective immediately after save)'}</div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 8 }}>
+            {[
+              ['finnhub', 'Finnhub API Key', 'finnhub.io/register'],
+              ['alpha_vantage', 'Alpha Vantage Key', 'alphavantage.co/support'],
+              ['twelve_data', 'Twelve Data Key', 'twelvedata.com/register'],
+            ].map(([k, label, hint]) => (
+              <div key={k}>
+                <label style={{ fontSize: '.68rem', color: 'var(--text3)' }}>{label}</label>
+                <input value={keys[k]} onChange={e => setKeys(kk => ({ ...kk, [k]: e.target.value }))} placeholder={`Get free key at ${hint}`} type="password" style={{ width: '100%', padding: '5px 8px', borderRadius: 6, border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', fontSize: '.72rem' }} />
+              </div>
+            ))}
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 8 }}>
+            <div>
+              <div style={{ fontSize: '.7rem', fontWeight: 600, color: 'var(--text3)', marginBottom: 4 }}>📱 Twilio SMS</div>
+              <input value={keys.twilio_sid} onChange={e => setKeys(kk => ({ ...kk, twilio_sid: e.target.value }))} placeholder="Account SID" type="password" style={{ width: '100%', padding: '4px 8px', borderRadius: 6, border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', fontSize: '.72rem', marginBottom: 4 }} />
+              <input value={keys.twilio_token} onChange={e => setKeys(kk => ({ ...kk, twilio_token: e.target.value }))} placeholder="Auth Token" type="password" style={{ width: '100%', padding: '4px 8px', borderRadius: 6, border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', fontSize: '.72rem', marginBottom: 4 }} />
+              <input value={keys.twilio_from} onChange={e => setKeys(kk => ({ ...kk, twilio_from: e.target.value }))} placeholder="From Number (+1234567890)" style={{ width: '100%', padding: '4px 8px', borderRadius: 6, border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', fontSize: '.72rem' }} />
+            </div>
+            <div>
+              <div style={{ fontSize: '.7rem', fontWeight: 600, color: 'var(--text3)', marginBottom: 4 }}>📧 SendGrid Email</div>
+              <input value={keys.sendgrid_key} onChange={e => setKeys(kk => ({ ...kk, sendgrid_key: e.target.value }))} placeholder="SendGrid API Key" type="password" style={{ width: '100%', padding: '4px 8px', borderRadius: 6, border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', fontSize: '.72rem', marginBottom: 4 }} />
+              <input value={keys.sendgrid_from} onChange={e => setKeys(kk => ({ ...kk, sendgrid_from: e.target.value }))} placeholder="From Email (alerts@yourcompany.com)" style={{ width: '100%', padding: '4px 8px', borderRadius: 6, border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', fontSize: '.72rem' }} />
+            </div>
+          </div>
+        </div>
+      )}
+
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
         <div style={c.card}>
           <div style={{ fontWeight: 700, marginBottom: 10 }}>📲 {lang === 'zh' ? '推送渠道状态' : 'Push Channels Status'}</div>
@@ -986,7 +1059,6 @@ function PushConfigTab({ lang }) {
                 <input value={urls[k]} onChange={e => setUrls(u => ({ ...u, [k]: e.target.value }))} placeholder={`https://...`} style={{ width: '100%', padding: '5px 8px', borderRadius: 6, border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', fontSize: '.74rem' }} />
               </div>
             ))}
-            <button onClick={saveUrls} style={{ padding: '6px 16px', borderRadius: 6, background: 'var(--accent)', color: '#fff', border: 'none', cursor: 'pointer', fontSize: '.76rem', fontWeight: 600, marginTop: 4 }}>Save Webhooks</button>
           </div>
 
           <div style={c.card}>
@@ -1004,6 +1076,11 @@ function PushConfigTab({ lang }) {
         </div>
       </div>
 
+      <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+        <button onClick={saveAll} style={{ padding: '8px 24px', borderRadius: 8, background: 'var(--accent)', color: '#fff', border: 'none', cursor: 'pointer', fontSize: '.82rem', fontWeight: 700 }}>💾 {lang === 'zh' ? '保存所有配置' : 'Save All Settings'}</button>
+        {saveMsg && <span style={{ fontSize: '.78rem', color: saveMsg.startsWith('✅') ? '#22c55e' : '#ef4444', alignSelf: 'center' }}>{saveMsg}</span>}
+      </div>
+
       <div style={c.card}>
         <div style={{ fontWeight: 700, marginBottom: 8 }}>📋 {lang === 'zh' ? '推送历史' : 'Push Log'}</div>
         {pushLog.length === 0 ? <div style={{ fontSize: '.76rem', color: 'var(--text3)' }}>No push history yet</div> : null}
@@ -1017,16 +1094,6 @@ function PushConfigTab({ lang }) {
             <span style={{ color: 'var(--text3)', fontSize: '.64rem' }}>{l.timestamp?.slice(11, 19)}</span>
           </div>
         ))}
-      </div>
-
-      <div style={{ marginTop: 12, ...c.card, background: 'rgba(59,130,246,.04)' }}>
-        <div style={{ fontWeight: 700, marginBottom: 6 }}>📧 {lang === 'zh' ? '高级推送配置（需设置环境变量）' : 'Advanced Push (requires env vars)'}</div>
-        <div style={{ fontSize: '.72rem', color: 'var(--text2)' }}>
-          <div>• <strong>Twilio SMS</strong>: Set <code>TWILIO_ACCOUNT_SID</code>, <code>TWILIO_AUTH_TOKEN</code>, <code>TWILIO_FROM_NUMBER</code></div>
-          <div>• <strong>SendGrid Email</strong>: Set <code>SENDGRID_API_KEY</code>, <code>SENDGRID_FROM_EMAIL</code></div>
-          <div>• <strong>Finnhub</strong>: Set <code>FINNHUB_API_KEY</code> (free at finnhub.io)</div>
-          <div>• <strong>Alpha Vantage</strong>: Set <code>ALPHA_VANTAGE_KEY</code> (free at alphavantage.co)</div>
-        </div>
       </div>
     </div>
   );
