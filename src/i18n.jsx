@@ -45,6 +45,7 @@ const dict = {
   'nav.auto_neg': { en: 'Auto-Negotiation', zh: 'AI 自动议价' },
   'nav.logistics': { en: 'Logistics Tracking', zh: '物流跟踪' },
   'nav.platform_intel': { en: 'Platform Intelligence', zh: '平台智能中心' },
+  'nav.infra_hub': { en: 'Infrastructure Layer', zh: '基础设施层' },
   'nav.operations': { en: 'Operations', zh: '运营管理' },
   'nav.requests': { en: 'Supply Requests', zh: '采购需求' },
   'nav.timeline': { en: 'Timeline', zh: '事件流' },

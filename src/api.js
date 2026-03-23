@@ -305,6 +305,29 @@ export const fetchMultiCurrency = () => get(`${V1}/compliance/multi-currency`);
 // ── Fulfillment Optimizer (对标 Amazon FBA) ──────────────────────────
 export const fetchFulfillmentOptimizer = () => get(`${V1}/fulfillment/optimizer`);
 
+// ── RaaS Engine ─────────────────────────────────────────────────────
+export const fetchRaaSPlans = () => get(`${V1}/raas/plans`);
+export const createRaaSContract = (d) => post(`${V1}/raas/contracts`, d);
+export const fetchRaaSContracts = () => get(`${V1}/raas/contracts`);
+export const fetchRaaSDashboard = () => get(`${V1}/raas/dashboard`);
+export const fetchRaaSUsage = () => get(`${V1}/raas/usage`);
+
+// ── Asset Lifecycle ─────────────────────────────────────────────────
+export const registerAsset = (d) => post(`${V1}/assets/register`, d);
+export const fetchAssets = () => get(`${V1}/assets`);
+export const fetchAssetLifecycle = () => get(`${V1}/assets/lifecycle-overview`);
+export const fetchDeploymentPipeline = () => get(`${V1}/assets/deployment-pipeline`);
+
+// ── Financial Infrastructure ────────────────────────────────────────
+export const fetchFinanceOverview = () => get(`${V1}/finance/overview`);
+export const fetchMilestonePayments = () => get(`${V1}/finance/milestones`);
+export const fetchInsuranceProducts = () => get(`${V1}/finance/insurance`);
+export const fetchRiskScoring = () => get(`${V1}/finance/risk-scoring`);
+export const fetchTradeCredit = () => get(`${V1}/finance/trade-credit`);
+
+// ── Strategic Overview ──────────────────────────────────────────────
+export const fetchStrategyOverview = () => get(`${V1}/strategy/market-position`);
+
 // ── Parts Catalog ────────────────────────────────────────────────────
 const PC = `${API}/api/parts-catalog`;
 
@@ -383,6 +406,21 @@ export const uploadWorkOrderEvidence = (woid, files, type = 'progress', notes = 
   const h = {}; const t = getAccessToken(); if (t) h['Authorization'] = `Bearer ${t}`;
   return fetch(`${MES}/work-orders/${woid}/upload-evidence?evidence_type=${type}&notes=${encodeURIComponent(notes)}`, { method: 'POST', body: fd, headers: h }).then(j);
 };
+
+// ── APS Simulation ───────────────────────────────────────────────────
+const APS = `${API}/api/aps`;
+
+export const fetchApsScenarios = (p = {}) => get(`${APS}/scenarios${qs(p)}`);
+export const createApsScenario = (d) => post(`${APS}/scenarios`, d);
+export const fetchApsScenario = (id) => get(`${APS}/scenarios/${id}`);
+export const runApsSimulation = (id) => post(`${APS}/scenarios/${id}/run`, {});
+export const fetchApsGantt = (id) => get(`${APS}/scenarios/${id}/gantt`);
+export const apsWhatIf = (d) => post(`${APS}/what-if`, d);
+export const apsCompare = (ids) => get(`${APS}/compare?ids=${ids}`);
+export const apsAutoSchedule = (factoryId, horizon = 14, objective = 'on_time') => post(`${APS}/auto-schedule?factory_id=${factoryId}&horizon_days=${horizon}&objective=${objective}`, {});
+export const syncBuyerView = (d) => post(`${APS}/buyer-view/sync`, d);
+export const fetchBuyerView = (poId) => get(`${APS}/buyer-view/${poId}`);
+export const fetchBuyerViews = (p = {}) => get(`${APS}/buyer-view${qs(p)}`);
 
 // ── 3D CAD Design ────────────────────────────────────────────────────
 const CAD = `${API}/api/cad-design`;
