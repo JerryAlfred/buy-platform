@@ -135,6 +135,13 @@ export const createListing = (d) => post(`${MP}/seller/listings`, d);
 export const fetchMpOrders = (p = {}) => get(`${MP}/orders${qs(p)}`);
 export const createMpOrder = (d) => post(`${MP}/orders`, d);
 
+const MPP = `${API}/api/marketplace/payments`;
+export const sellerOnboard = (d) => post(`${MPP}/sellers/onboard`, d);
+export const fetchSellerProfile = (email) => get(`${MPP}/sellers/${encodeURIComponent(email)}/profile`);
+export const sellerDashboardLink = (email) => post(`${MPP}/sellers/${encodeURIComponent(email)}/dashboard-link`, {});
+export const fetchSellerBalance = (email) => get(`${MPP}/sellers/${encodeURIComponent(email)}/balance`);
+export const createMpCheckout = (d) => post(`${MPP}/checkout`, d);
+
 // ── Supply Chain Ops (Fulfillment + Compliance + Payments) ────────────
 const OPS = `${API}/api/supply-chain-ops`;
 
@@ -188,6 +195,28 @@ export const agentChat = (msg, lang = 'en', context = {}, history = [], session_
   post(`${V1}/agent`, { message: msg, lang, context, history, session_id });
 export const fetchAgentAudit = (p = {}) => get(`${V1}/agent/audit${qs(p)}`);
 
+// ── Notifications ────────────────────────────────────────────────────
+export const fetchNotifications = (p = {}) => get(`${V1}/notifications${qs(p)}`);
+export const markNotifRead = (id) => post(`${V1}/notifications/${id}/read`, {});
+export const markAllNotifRead = (userId = '') => post(`${V1}/notifications/read-all${userId ? `?user_id=${userId}` : ''}`, {});
+export const sendNotification = (data) => post(`${V1}/notifications/send`, data);
+export const fetchNotifPreferences = (userId = 'default') => get(`${V1}/notifications/preferences?user_id=${userId}`);
+export const updateNotifPreferences = (data) => post(`${V1}/notifications/preferences`, data);
+export const fetchNotifDeliveries = (p = {}) => get(`${V1}/notifications/deliveries${qs(p)}`);
+
+// ── Logistics Tracking ──────────────────────────────────────────────
+export const fetchLogistics = (p = {}) => get(`${V1}/logistics${qs(p)}`);
+export const createLogistics = (data) => post(`${V1}/logistics`, data);
+export const updateLogistics = (id, data) => post(`${V1}/logistics/${id}/update`, data);
+export const fetchLogisticsDashboard = () => get(`${V1}/logistics/dashboard`);
+
+// ── Auto-Negotiation ────────────────────────────────────────────────
+export const startAutoNeg = (data) => post(`${V1}/auto-negotiate`, data);
+export const fetchAutoNeg = (id) => get(`${V1}/auto-negotiate/${id}`);
+export const autoNegNextRound = (id) => post(`${V1}/auto-negotiate/${id}/next-round`, {});
+export const autoNegAccept = (id, idx = 0) => post(`${V1}/auto-negotiate/${id}/accept?supplier_idx=${idx}`, {});
+export const fetchAutoNegList = (p = {}) => get(`${V1}/auto-negotiate${qs(p)}`);
+
 // ── Parts Catalog ────────────────────────────────────────────────────
 const PC = `${API}/api/parts-catalog`;
 
@@ -232,6 +261,31 @@ export const updatePcbOrder = (id, d) => patch(`${PCB}/orders/${id}`, d);
 export const confirmPcbOrder = (id) => post(`${PCB}/orders/${id}/confirm`, {});
 export const fetchPcbVendorOptions = () => get(`${PCB}/vendor-options`);
 
+// ── Cloud MES / ERP / APS ───────────────────────────────────────────────
+const MES = `${API}/api/mes`;
+
+export const fetchMesDashboard = (p = {}) => get(`${MES}/dashboard${qs(p)}`);
+export const fetchMesFactories = (p = {}) => get(`${MES}/factories${qs(p)}`);
+export const createMesFactory = (d) => post(`${MES}/factories`, d);
+export const fetchMesFactory = (id) => get(`${MES}/factories/${id}`);
+export const fetchMesLines = (p = {}) => get(`${MES}/lines${qs(p)}`);
+export const createMesLine = (d) => post(`${MES}/lines`, d);
+export const fetchMesWorkOrders = (p = {}) => get(`${MES}/work-orders${qs(p)}`);
+export const createMesWorkOrder = (d) => post(`${MES}/work-orders`, d);
+export const updateMesWorkOrder = (id, p) => patch(`${MES}/work-orders/${id}${qs(p)}`, {});
+export const fetchMesInventory = (p = {}) => get(`${MES}/inventory${qs(p)}`);
+export const createMesInventory = (d) => post(`${MES}/inventory`, d);
+export const adjustMesInventory = (id, p) => patch(`${MES}/inventory/${id}/adjust${qs(p)}`, {});
+export const fetchMesQuality = (p = {}) => get(`${MES}/quality${qs(p)}`);
+export const createMesQuality = (d) => post(`${MES}/quality`, d);
+export const fetchMesSchedules = (p = {}) => get(`${MES}/schedules${qs(p)}`);
+export const createMesSchedule = (d) => post(`${MES}/schedules`, d);
+export const fetchMesEvents = (p = {}) => get(`${MES}/events${qs(p)}`);
+export const fetchMesAiScheduling = (fid) => post(`${MES}/ai/scheduling-suggestion?factory_id=${fid}`, {});
+export const fetchMesAiQuote = (p = {}) => post(`${MES}/ai/quote-prediction${qs(p)}`, {});
+export const fetchMesAiAnalytics = (p = {}) => get(`${MES}/ai/production-analytics${qs(p)}`);
+export const fetchMesTrace = (poId) => get(`${MES}/trace/order/${poId}`);
+
 // ── 3D CAD Design ────────────────────────────────────────────────────
 const CAD = `${API}/api/cad-design`;
 
@@ -253,3 +307,13 @@ export const generateCadRfq = (id) => post(`${CAD}/designs/${id}/generate-rfq`, 
 export const quickCadRfq = (body) => post(`${CAD}/quick-rfq`, body);
 export const getCadRfqQuotes = (body) => post(`${CAD}/rfq-quotes`, body);
 export const fetchCadStats = () => get(`${CAD}/stats`);
+
+// ── Design Templates ─────────────────────────────────────────────────
+const DT = `${API}/api/design-templates`;
+
+export const fetchDesignTemplateCategories = () => get(`${DT}/categories`);
+export const fetchDesignTemplates = (p = {}) => get(`${DT}/templates${qs(p)}`);
+export const fetchDesignTemplateDetail = (id) => get(`${DT}/templates/${id}`);
+export const fetchDesignTemplateFeatured = () => get(`${DT}/featured`);
+export const fetchDesignTemplateTutorials = () => get(`${DT}/tutorials`);
+export const fetchDesignTemplateStats = () => get(`${DT}/stats`);

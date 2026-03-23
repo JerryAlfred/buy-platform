@@ -5,6 +5,125 @@ import { useI18n } from '../i18n';
 const money = (n) => n == null ? '—' : `$${Number(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 const fmt = (n) => n == null ? '—' : typeof n === 'number' ? n.toLocaleString() : n;
 
+function SellerConnectPanel() {
+  const [email, setEmail] = useState('');
+  const [profile, setProfile] = useState(null);
+  const [balance, setBalance] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [onboardLoading, setOnboardLoading] = useState(false);
+
+  const lookup = async () => {
+    if (!email) return;
+    setLoading(true);
+    try {
+      const p = await api.fetchSellerProfile(email);
+      setProfile(p);
+      if (p.onboarding_status === 'active') {
+        const b = await api.fetchSellerBalance(email);
+        setBalance(b);
+      }
+    } catch { setProfile(null); setBalance(null); }
+    setLoading(false);
+  };
+
+  const startOnboarding = async () => {
+    if (!email) return;
+    setOnboardLoading(true);
+    try {
+      const result = await api.sellerOnboard({ seller_email: email, seller_name: '', seller_company: '' });
+      if (result.onboarding_url) window.open(result.onboarding_url, '_blank');
+      setProfile(result.profile);
+    } catch (err) { alert('Onboarding failed: ' + err.message); }
+    setOnboardLoading(false);
+  };
+
+  const openDashboard = async () => {
+    try {
+      const result = await api.sellerDashboardLink(email);
+      if (result.dashboard_url) window.open(result.dashboard_url, '_blank');
+    } catch (err) { alert('Could not open dashboard: ' + err.message); }
+  };
+
+  const STATUS_BADGE = {
+    active: 'badge-green', pending: 'badge-yellow', onboarding: 'badge-blue',
+    restricted: 'badge-red', disabled: 'badge-red',
+  };
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+        <input className="input" placeholder="Seller email" value={email} onChange={e => setEmail(e.target.value)} style={{ flex: 1, maxWidth: 320 }} />
+        <button className="btn btn-primary" onClick={lookup} disabled={loading}>{loading ? 'Loading…' : 'Look Up'}</button>
+        <button className="btn btn-secondary" onClick={startOnboarding} disabled={onboardLoading}>{onboardLoading ? 'Starting…' : '+ Onboard New Seller'}</button>
+      </div>
+
+      {profile && (
+        <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <strong>{profile.seller_email}</strong>
+              {profile.seller_company && <span style={{ color: 'var(--text2)', marginLeft: 8 }}>({profile.seller_company})</span>}
+            </div>
+            <span className={`badge ${STATUS_BADGE[profile.onboarding_status] || 'badge-yellow'}`}>{profile.onboarding_status}</span>
+          </div>
+          <div style={{ display: 'flex', gap: 24, fontSize: '.85rem', color: 'var(--text2)' }}>
+            <span>Charges: {profile.charges_enabled ? '✅' : '❌'}</span>
+            <span>Payouts: {profile.payouts_enabled ? '✅' : '❌'}</span>
+            <span>Fee: {profile.platform_fee_percent}%</span>
+            <span>Country: {profile.country}</span>
+          </div>
+          {profile.onboarding_status === 'active' && (
+            <button className="btn btn-secondary" onClick={openDashboard} style={{ alignSelf: 'flex-start' }}>Open Stripe Dashboard ↗</button>
+          )}
+        </div>
+      )}
+
+      {balance && (
+        <div style={{ display: 'flex', gap: 16 }}>
+          <div className="card" style={{ flex: 1 }}>
+            <div style={{ fontSize: '.8rem', color: 'var(--text3)', marginBottom: 4 }}>Available Balance</div>
+            <div style={{ fontSize: '1.3rem', fontWeight: 700, color: 'var(--green)' }}>
+              {balance.available?.map(a => money(a.amount)).join(', ') || '$0.00'}
+            </div>
+          </div>
+          <div className="card" style={{ flex: 1 }}>
+            <div style={{ fontSize: '.8rem', color: 'var(--text3)', marginBottom: 4 }}>Pending</div>
+            <div style={{ fontSize: '1.3rem', fontWeight: 700, color: 'var(--yellow)' }}>
+              {balance.pending?.map(p => money(p.amount)).join(', ') || '$0.00'}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {balance?.recent_paid_orders?.length > 0 && (
+        <>
+          <h4 style={{ fontSize: '.9rem', fontWeight: 600, marginTop: 8 }}>Recent Payouts</h4>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead><tr>{['Order', 'Total', 'Fee', 'Payout', 'Date'].map(h => <th key={h} className="th">{h}</th>)}</tr></thead>
+            <tbody>
+              {balance.recent_paid_orders.map(o => (
+                <tr key={o.order_key}>
+                  <td className="td" style={{ fontWeight: 600 }}>{o.order_key}</td>
+                  <td className="td">{money(o.total_usd)}</td>
+                  <td className="td" style={{ color: 'var(--text3)' }}>{money(o.platform_fee_usd)}</td>
+                  <td className="td" style={{ color: 'var(--green)', fontWeight: 600 }}>{money(o.seller_payout_usd)}</td>
+                  <td className="td" style={{ fontSize: '.82rem' }}>{o.created_at?.slice(0, 10)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </>
+      )}
+
+      {!profile && !loading && (
+        <div style={{ textAlign: 'center', padding: 30, color: 'var(--text3)' }}>
+          Enter a seller email to view their Stripe Connect profile, or click "Onboard New Seller" to start.
+        </div>
+      )}
+    </div>
+  );
+}
+
 const INV_BADGE = {
   draft: 'badge-yellow', submitted: 'badge-blue', approved: 'badge-green',
   paid: 'badge-green', overdue: 'badge-red', rejected: 'badge-red',
@@ -81,6 +200,7 @@ export default function PaymentsPage() {
             <button className="btn-sm" style={view === 'invoices' ? { background: 'var(--accent)', color: '#fff' } : {}} onClick={() => setView('invoices')}>🧾 Invoices</button>
             <button className="btn-sm" style={view === 'approvals' ? { background: 'var(--accent)', color: '#fff' } : {}} onClick={() => setView('approvals')}>⏳ Approvals</button>
             <button className="btn-sm" style={view === 'payables' ? { background: 'var(--accent)', color: '#fff' } : {}} onClick={() => setView('payables')}>💰 Payables</button>
+            <button className="btn-sm" style={view === 'connect' ? { background: 'var(--accent)', color: '#fff' } : {}} onClick={() => setView('connect')}>🔗 Seller Connect</button>
           </div>
           {view === 'invoices' && (
             <button className="btn btn-primary" onClick={() => setShowModal(true)}>+ New Invoice</button>
@@ -151,6 +271,8 @@ export default function PaymentsPage() {
             </div>
           </>
         )}
+
+        {view === 'connect' && <SellerConnectPanel />}
 
         {view === 'payables' && (
           <>

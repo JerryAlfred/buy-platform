@@ -3,6 +3,7 @@ import * as api from './api';
 import { AuthProvider, useAuth } from './auth';
 import { I18nProvider, useI18n } from './i18n';
 import AgentBar from './AgentBar';
+import NotificationCenter from './components/NotificationCenter';
 
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const ConfidencePage = lazy(() => import('./pages/ConfidencePage'));
@@ -37,6 +38,18 @@ const HumanoidAtlasPage = lazy(() => import('./pages/HumanoidAtlasPage'));
 const SupplyTreePage = lazy(() => import('./pages/SupplyTreePage'));
 const CADDesignPage = lazy(() => import('./pages/CADDesignPage'));
 const DesignToQuotePage = lazy(() => import('./pages/DesignToQuotePage'));
+const MESWorkbenchPage = lazy(() => import('./pages/MESWorkbenchPage'));
+const TraceabilityPage = lazy(() => import('./pages/TraceabilityPage'));
+const AIAnalyticsPage = lazy(() => import('./pages/AIAnalyticsPage'));
+const DesignTemplatesPage = lazy(() => import('./pages/DesignTemplatesPage'));
+const ProjectWorkspacePage = lazy(() => import('./pages/ProjectWorkspacePage'));
+const ProductWizardPage = lazy(() => import('./pages/ProductWizardPage'));
+const ComponentSearchPage = lazy(() => import('./pages/ComponentSearchPage'));
+const MarketIntelligencePage = lazy(() => import('./pages/MarketIntelligencePage'));
+const ComplianceGuidePage = lazy(() => import('./pages/ComplianceGuidePage'));
+const PrototypeBundlePage = lazy(() => import('./pages/PrototypeBundlePage'));
+const LogisticsPage = lazy(() => import('./pages/LogisticsPage'));
+const AutoNegPage = lazy(() => import('./pages/AutoNegPage'));
 
 
 const NAV_DEF = [
@@ -56,6 +69,7 @@ const NAV_DEF = [
   { groupKey: 'nav.execution', items: [
     { id: 'milestones', labelKey: 'nav.milestones', icon: '🏦' },
     { id: 'orders', labelKey: 'nav.orders', icon: '📦' },
+    { id: 'logistics', labelKey: 'nav.logistics', icon: '🚚' },
     { id: 'verification', labelKey: 'nav.verification', icon: '🔍' },
     { id: 'compliance', labelKey: 'nav.compliance', icon: '📋' },
     { id: 'portal', labelKey: 'nav.portal', icon: '👤' },
@@ -68,17 +82,32 @@ const NAV_DEF = [
     { id: 'relationships', labelKey: 'nav.relationships', icon: '🤝' },
     { id: 'intelligence', labelKey: 'nav.intelligence', icon: '📈' },
   ]},
+  { groupKey: 'nav.product_dev', items: [
+    { id: 'project_workspace', labelKey: 'nav.project_workspace', icon: '📋' },
+    { id: 'product_wizard', labelKey: 'nav.product_wizard', icon: '🧙' },
+    { id: 'component_search', labelKey: 'nav.component_search', icon: '🔍' },
+    { id: 'market_intel', labelKey: 'nav.market_intel', icon: '📊' },
+    { id: 'compliance_guide', labelKey: 'nav.compliance_guide', icon: '✅' },
+    { id: 'prototype_bundle', labelKey: 'nav.prototype_bundle', icon: '📦' },
+  ]},
   { groupKey: 'nav.catalog', items: [
     { id: 'parts_catalog', labelKey: 'nav.parts_catalog', icon: '🔩' },
     { id: 'humanoid_atlas', labelKey: 'nav.humanoid_atlas', icon: '🤖' },
     { id: 'supply_tree', labelKey: 'nav.supply_tree', icon: '🌳' },
     { id: 'cad_design', labelKey: 'nav.cad_design', icon: '🔧' },
     { id: 'design_to_quote', labelKey: 'nav.design_to_quote', icon: '💰' },
+    { id: 'design_templates', labelKey: 'nav.design_templates', icon: '📚' },
+  ]},
+  { groupKey: 'nav.mes', items: [
+    { id: 'mes_workbench', labelKey: 'nav.mes_workbench', icon: '☁️' },
+    { id: 'traceability', labelKey: 'nav.traceability', icon: '🔍' },
+    { id: 'ai_analytics', labelKey: 'nav.ai_analytics', icon: '🤖' },
   ]},
   { groupKey: 'nav.agents', items: [
     { id: 'browser', labelKey: 'nav.browser', icon: '🌐' },
     { id: 'graph', labelKey: 'nav.graph', icon: '🕸️' },
     { id: 'crawler', labelKey: 'nav.crawler', icon: '🕷️' },
+    { id: 'auto_neg', labelKey: 'nav.auto_neg', icon: '🤝' },
   ]},
   { groupKey: 'nav.operations', items: [
     { id: 'requests', labelKey: 'nav.requests', icon: '📋' },
@@ -514,7 +543,7 @@ function MarketplacePage() {
 // ═══════════════════════════════════════════════════════════════════════════
 
 const INLINE_PAGES = { dashboard: DashboardPage, expert: ExpertPage, bom: BOMPage, rfq: RFQPage, suppliers: SuppliersPage, relationships: RelationshipsPage, quality: QualityPage, procurement: ProcurementPage, intelligence: IntelligencePage, marketplace: MarketplacePage };
-const LAZY_PAGES = { confidence: ConfidencePage, negotiation: NegotiationPage, milestones: MilestonePage, verification: VerificationPage, orders: OrderTrackingPage, browser: BrowserAgentPage, graph: SupplyGraphPage, trust: TrustScorePage, agency: AgencyPage, compliance: CompliancePage, credit: CreditPage, portal: CustomerPortalPage, flywheel: FlywheelPage, fulfillment: FulfillmentPage, payments: PaymentsPage, revenue: RevenuePage, org: OrgManagementPage, roles: RolesPermissionsPage, account: AccountPage, crawler: CrawlerPage, requests: RequestsPage, timeline: TimelinePage, eda_hub: EdaDesignHub, schematic: SchematicEditor, pcb_layout: PcbLayoutEditor, gerber_view: GerberPreview, pcb_order: PcbOrderPage, parts_catalog: PartsCatalogPage, humanoid_atlas: HumanoidAtlasPage, supply_tree: SupplyTreePage, cad_design: CADDesignPage, design_to_quote: DesignToQuotePage };
+const LAZY_PAGES = { confidence: ConfidencePage, negotiation: NegotiationPage, milestones: MilestonePage, verification: VerificationPage, orders: OrderTrackingPage, browser: BrowserAgentPage, graph: SupplyGraphPage, trust: TrustScorePage, agency: AgencyPage, compliance: CompliancePage, credit: CreditPage, portal: CustomerPortalPage, flywheel: FlywheelPage, fulfillment: FulfillmentPage, payments: PaymentsPage, revenue: RevenuePage, org: OrgManagementPage, roles: RolesPermissionsPage, account: AccountPage, crawler: CrawlerPage, requests: RequestsPage, timeline: TimelinePage, eda_hub: EdaDesignHub, schematic: SchematicEditor, pcb_layout: PcbLayoutEditor, gerber_view: GerberPreview, pcb_order: PcbOrderPage, parts_catalog: PartsCatalogPage, humanoid_atlas: HumanoidAtlasPage, supply_tree: SupplyTreePage, cad_design: CADDesignPage, design_to_quote: DesignToQuotePage, design_templates: DesignTemplatesPage, mes_workbench: MESWorkbenchPage, traceability: TraceabilityPage, ai_analytics: AIAnalyticsPage, logistics: LogisticsPage, auto_neg: AutoNegPage };
 
 function Loading() { return <div style={{ textAlign: 'center', padding: 60, color: 'var(--text3)' }}>Loading...</div>; }
 
@@ -540,10 +569,13 @@ function AppShell() {
         <div className="logo">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <h1>{t('app.name')}</h1>
-            <button onClick={toggleLang} style={{
-              background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 6,
-              padding: '2px 8px', fontSize: '.72rem', color: 'var(--accent)', cursor: 'pointer', fontWeight: 700,
-            }}>{lang === 'en' ? '中文' : 'EN'}</button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+              <NotificationCenter onNavigate={setPage} />
+              <button onClick={toggleLang} style={{
+                background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 6,
+                padding: '2px 8px', fontSize: '.72rem', color: 'var(--accent)', cursor: 'pointer', fontWeight: 700,
+              }}>{lang === 'en' ? '中文' : 'EN'}</button>
+            </div>
           </div>
           <p>{t('app.sub')}</p>
         </div>

@@ -91,7 +91,7 @@ export default function DesignToQuotePage() {
               <span className="panel-title">Your Parts ({parts.length})</span>
               {parts.length > 0 && (
                 <button className="btn btn-primary" style={{ fontSize: '.8rem' }} onClick={generateQuotes} disabled={loading}>
-                  {loading ? 'Querying 8+ suppliers...' : 'Get Real Quotes ->'}
+                  {loading ? 'Querying 8+ suppliers...' : 'Get Real Quotes \u2192'}
                 </button>
               )}
             </div>
@@ -181,7 +181,7 @@ export default function DesignToQuotePage() {
 
           <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
             <button className="btn btn-secondary" onClick={() => setStep(1)}>Back</button>
-            <button className="btn btn-primary" onClick={() => setStep(3)} disabled={selectedCount === 0}>Confirm & Send RFQ to {selectedCount} Supplier{selectedCount !== 1 ? 's' : ''} -></button>
+            <button className="btn btn-primary" onClick={() => setStep(3)} disabled={selectedCount === 0}>{'Confirm & Send RFQ to ' + selectedCount + ' Supplier' + (selectedCount !== 1 ? 's' : '') + ' \u2192'}</button>
           </div>
         </div>
       )}
