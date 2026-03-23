@@ -47,6 +47,7 @@ const dict = {
   'nav.platform_intel': { en: 'Platform Intelligence', zh: '平台智能中心' },
   'nav.infra_hub': { en: 'Infrastructure Layer', zh: '基础设施层' },
   'nav.revenue_os': { en: 'Revenue OS', zh: '收入操作系统' },
+  'nav.geointel': { en: 'GeoIntel Sky Eye', zh: '天眼 · 地缘情报' },
   'nav.operations': { en: 'Operations', zh: '运营管理' },
   'nav.requests': { en: 'Supply Requests', zh: '采购需求' },
   'nav.timeline': { en: 'Timeline', zh: '事件流' },

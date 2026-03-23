@@ -341,6 +341,15 @@ export const fetchGrowthMetrics = () => get(`${V1}/growth/metrics`);
 export const fetchActionBoard = () => get(`${V1}/actions/board`);
 export const simulateRevenue = (d) => post(`${V1}/growth/simulate`, d);
 
+// ── GeoIntel ────────────────────────────────────────────────────────
+export const fetchGeoEvents = (p = {}) => get(`${V1}/geointel/events${qs(p)}`);
+export const fetchGeoEvent = (id) => get(`${V1}/geointel/events/${id}`);
+export const fetchResilience = () => get(`${V1}/geointel/resilience`);
+export const fetchIndustryChains = () => get(`${V1}/geointel/industry-chains`);
+export const fetchMarkets = () => get(`${V1}/geointel/markets`);
+export const fetchTradingSignals = () => get(`${V1}/geointel/signals`);
+export const fetchPlaybook = () => get(`${V1}/geointel/playbook`);
+
 // ── Parts Catalog ────────────────────────────────────────────────────
 const PC = `${API}/api/parts-catalog`;
 
