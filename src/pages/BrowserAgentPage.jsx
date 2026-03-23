@@ -1,7 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import * as api from '../api';
+import { useI18n } from '../i18n';
 
 export default function BrowserAgentPage() {
+  const { lang } = useI18n();
   const [tasks, setTasks] = useState([]);
   const [sel, setSel] = useState(null);
   const [detail, setDetail] = useState(null);
@@ -41,8 +43,8 @@ export default function BrowserAgentPage() {
 
   return (
     <>
-      <h2 className="page-title">Browser Agent</h2>
-      <p className="page-sub">Playwright-powered — search 1688 / Taobao / Alibaba, scrape suppliers, auto-chat with customer service</p>
+      <h2 className="page-title">{lang === 'zh' ? '浏览器代理' : 'Browser Agent'}</h2>
+      <p className="page-sub">{lang === 'zh' ? 'Playwright 驱动 — 搜索 1688 / 淘宝 / 阿里巴巴，抓取供应商，自动客服聊天' : 'Playwright-powered — search 1688 / Taobao / Alibaba, scrape suppliers, auto-chat with customer service'}</p>
 
       <div className="grid-sidebar">
         <div className="panel">

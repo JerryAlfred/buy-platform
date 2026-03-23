@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import * as api from '../api';
+import { useI18n } from '../i18n';
 
 const DEMO_AGENCIES = [
   { id: 1, brand: 'UnitreeGo', productLine: 'Quadruped Robots', territory: 'North America', start: '2024-01-15', end: '2026-01-14', exclusivity: 'Exclusive', status: 'active', minOrder: 50, unitsSold: 187, revenue: 1496000, target: 200, contact: 'David Liu', email: 'david@unitree.com' },
@@ -18,6 +19,7 @@ const DEMO_CATALOG = [
 ];
 
 export default function AgencyPage() {
+  const { lang } = useI18n();
   const [agencies] = useState(DEMO_AGENCIES);
   const [selected, setSelected] = useState(null);
   const [tab, setTab] = useState('overview');
@@ -39,8 +41,8 @@ export default function AgencyPage() {
 
   return (
     <>
-      <h2 className="page-title">Agency & Distribution Management</h2>
-      <p className="page-sub">Exclusive agency agreements, product catalogs, and performance tracking</p>
+      <h2 className="page-title">{lang === 'zh' ? '独家代理' : 'Exclusive Agency'}</h2>
+      <p className="page-sub">{lang === 'zh' ? '独家代理协议、产品目录和绩效追踪' : 'Exclusive agency agreements, product catalogs, and performance tracking'}</p>
 
       <div className="kpis">
         <div className="kpi"><div className="kpi-label">Active Agreements</div><div className="kpi-value" style={{ color: 'var(--green)' }}>{agencies.filter(a => a.status === 'active').length}</div></div>

@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { useAuth, ROLES } from '../auth';
+import { useI18n } from '../i18n';
 
 export default function AccountPage() {
+  const { lang } = useI18n();
   const { user, org, roleMeta, logout, allOrgs } = useAuth();
   const [editMode, setEditMode] = useState(false);
   const [form, setForm] = useState({ name: user?.name || '', email: user?.email || '', phone: '', timezone: 'America/Los_Angeles', language: 'en', notifications: { email: true, browser: true, slack: false } });
@@ -25,8 +27,8 @@ export default function AccountPage() {
 
   return (
     <>
-      <h2 className="page-title">Account Settings</h2>
-      <p className="page-sub">Manage your profile, security, and preferences</p>
+      <h2 className="page-title">{lang === 'zh' ? '账户设置' : 'Account Settings'}</h2>
+      <p className="page-sub">{lang === 'zh' ? '管理您的个人资料、安全和偏好设置' : 'Manage your profile, security, and preferences'}</p>
 
       <div className="grid-2">
         <div>

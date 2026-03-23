@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, Fragment } from 'react';
 import * as api from '../api';
+import { useI18n } from '../i18n';
 
 const fmt = (n) => n == null ? '—' : typeof n === 'number' ? n.toLocaleString() : n;
 const pct = (n) => n == null ? '—' : `${(n * 100).toFixed(1)}%`;
@@ -17,6 +18,7 @@ const MILESTONE_STATUS_COLOR = {
 };
 
 export default function FulfillmentPage() {
+  const { lang } = useI18n();
   const [dash, setDash] = useState({});
   const [orders, setOrders] = useState([]);
   const [samples, setSamples] = useState([]);
@@ -65,8 +67,8 @@ export default function FulfillmentPage() {
 
   return (
     <>
-      <h2 className="page-title">Fulfillment & Execution</h2>
-      <p className="page-sub">Track orders, milestones, sample requests, and delivery performance</p>
+      <h2 className="page-title">{lang === 'zh' ? '履约管理' : 'Fulfillment Management'}</h2>
+      <p className="page-sub">{lang === 'zh' ? '跟踪订单、里程碑、样品请求和交付表现' : 'Track orders, milestones, sample requests, and delivery performance'}</p>
 
       <div className="kpis">
         {kpis.map(k => (

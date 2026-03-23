@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import * as api from '../api';
+import { useI18n } from '../i18n';
 
 const FLYWHEEL_STAGES = [
   { key: 'transaction', label: 'Transaction', icon: '💰', desc: 'Source, negotiate, procure', angle: 0 },
@@ -46,6 +47,7 @@ function FlywheelVis({ health }) {
 }
 
 export default function FlywheelPage() {
+  const { lang } = useI18n();
   const [dashboard, setDashboard] = useState({});
   const [v2, setV2] = useState({});
   const [orders, setOrders] = useState([]);
@@ -118,8 +120,8 @@ export default function FlywheelPage() {
 
   return (
     <>
-      <h2 className="page-title">Flywheel Dashboard</h2>
-      <p className="page-sub">North Star metrics, flywheel health, and cross-layer KPIs</p>
+      <h2 className="page-title">{lang === 'zh' ? '飞轮与北极星' : 'Flywheel & North Star KPIs'}</h2>
+      <p className="page-sub">{lang === 'zh' ? '北极星指标、飞轮健康度和跨层 KPI' : 'North Star metrics, flywheel health, and cross-layer KPIs'}</p>
 
       <div className="panel" style={{ textAlign: 'center', padding: '32px 20px', background: 'linear-gradient(135deg, rgba(59,130,246,.08), rgba(168,85,247,.08))', borderColor: 'rgba(59,130,246,.3)' }}>
         <div style={{ fontSize: '.82rem', textTransform: 'uppercase', letterSpacing: 1, color: 'var(--text2)', marginBottom: 4 }}>North Star Metric</div>

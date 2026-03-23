@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import * as api from '../api';
+import { useI18n } from '../i18n';
 
 const money = (n) => n == null ? '—' : `$${Number(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 const fmt = (n) => n == null ? '—' : typeof n === 'number' ? n.toLocaleString() : n;
@@ -11,6 +12,7 @@ const INV_BADGE = {
 };
 
 export default function PaymentsPage() {
+  const { lang } = useI18n();
   const [dash, setDash] = useState({});
   const [invoices, setInvoices] = useState([]);
   const [approvals, setApprovals] = useState([]);
@@ -61,8 +63,8 @@ export default function PaymentsPage() {
 
   return (
     <>
-      <h2 className="page-title">Payments & Finance</h2>
-      <p className="page-sub">Invoice management, approval workflows, and accounts payable</p>
+      <h2 className="page-title">{lang === 'zh' ? '支付与财务' : 'Payments & Finance'}</h2>
+      <p className="page-sub">{lang === 'zh' ? '发票管理、审批流程和应付账款' : 'Invoice management, approval workflows, and accounts payable'}</p>
 
       <div className="kpis">
         {kpis.map(k => (

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import * as api from '../api';
+import { useI18n } from '../i18n';
 
 const TASK_TIERS = [
   { task: 'search_suppliers', label: 'Search Suppliers', defaultConf: 0.95, icon: '🔍' },
@@ -18,6 +19,7 @@ function confLabel(c) { return c >= 0.85 ? 'AUTO' : c >= 0.6 ? 'SEMI-AUTO' : 'MA
 function confBadge(c) { const cl = c >= 0.85 ? 'green' : c >= 0.6 ? 'yellow' : 'red'; return <span className={`badge badge-${cl}`}>{confLabel(c)}</span>; }
 
 export default function ConfidencePage() {
+  const { lang } = useI18n();
   const [data, setData] = useState(null);
   const [tiers, setTiers] = useState(TASK_TIERS.map(t => ({ ...t, confidence: t.defaultConf })));
 
@@ -25,8 +27,8 @@ export default function ConfidencePage() {
 
   return (
     <>
-      <h2 className="page-title">Confidence System</h2>
-      <p className="page-sub">Controls which tasks AI executes autonomously vs. which require your approval</p>
+      <h2 className="page-title">{lang === 'zh' ? '置信度系统' : 'Confidence System'}</h2>
+      <p className="page-sub">{lang === 'zh' ? '控制 AI 自动执行哪些任务，哪些需要您的审批' : 'Controls which tasks AI executes autonomously vs. which require your approval'}</p>
 
       <div className="panel">
         <div className="panel-header"><span className="panel-title">Task Automation Tiers</span></div>

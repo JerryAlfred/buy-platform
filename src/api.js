@@ -183,6 +183,30 @@ export const fetchRevenueTransactions = () => get(`${TR}/revenue/transactions`);
 export const fetchRevenuePricing = () => get(`${TR}/revenue/pricing`);
 export const fetchRevenueProjections = () => get(`${TR}/revenue/projections`);
 
+// ── AI Agent ─────────────────────────────────────────────────────────
+export const agentChat = (message, lang = 'en', context = {}) => post(`${V1}/agent`, { message, lang, context });
+
+// ── Parts Catalog ────────────────────────────────────────────────────
+const PC = `${API}/api/parts-catalog`;
+
+export const fetchPartCategories = () => get(`${PC}/categories`);
+export const fetchParts = (p = {}) => get(`${PC}/parts${qs(p)}`);
+export const fetchPartDetail = (id) => get(`${PC}/parts/${id}`);
+export const fetchPartStats = () => get(`${PC}/stats`);
+export const fetchPartSuppliers = (category) => get(`${PC}/suppliers${category ? `?category=${category}` : ''}`);
+
+// ── Humanoid Atlas ───────────────────────────────────────────────────
+const HA = `${API}/api/humanoid-atlas`;
+
+export const fetchHumanoidRegions = () => get(`${HA}/body-regions`);
+export const fetchHumanoidRegionDetail = (id) => get(`${HA}/body-regions/${id}`);
+export const fetchHumanoidOem = (country) => get(`${HA}/oem${country ? `?country=${country}` : ''}`);
+export const fetchHumanoidLayers = () => get(`${HA}/supply-chain-layers`);
+export const fetchHumanoidSuppliers = (category) => get(`${HA}/component-suppliers${category ? `?category=${category}` : ''}`);
+export const searchHumanoidComponents = (q) => get(`${HA}/search?q=${encodeURIComponent(q)}`);
+export const fetchHumanoidBomTree = () => get(`${HA}/bom-tree`);
+export const fetchHumanoidStats = () => get(`${HA}/stats`);
+
 // ── EDA Design Platform ──────────────────────────────────────────────
 const EDA = `${API}/api/eda`;
 const PCB = `${API}/api/pcb-order`;

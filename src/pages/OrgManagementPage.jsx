@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { useAuth, ROLES, DEMO_USERS, DEMO_ORGS } from '../auth';
+import { useI18n } from '../i18n';
 
 export default function OrgManagementPage() {
+  const { lang } = useI18n();
   const { user, org, allUsers, allOrgs } = useAuth();
   const isPlatform = user?.role === 'platform_admin' || user?.role === 'platform_ops';
   const orgs = isPlatform ? allOrgs : allOrgs.filter(o => o.id === user?.org_id);
@@ -29,8 +31,8 @@ export default function OrgManagementPage() {
 
   return (
     <>
-      <h2 className="page-title">Organization Management</h2>
-      <p className="page-sub">Manage your teams, members, and organizational structure</p>
+      <h2 className="page-title">{lang === 'zh' ? '组织管理' : 'Organization Management'}</h2>
+      <p className="page-sub">{lang === 'zh' ? '管理您的团队、成员和组织架构' : 'Manage your teams, members, and organizational structure'}</p>
 
       {isPlatform && (
         <div className="kpis">

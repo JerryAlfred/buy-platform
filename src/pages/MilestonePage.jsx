@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import * as api from '../api';
+import { useI18n } from '../i18n';
 
 const MILESTONES = [
   { key: 'deposit', label: 'Deposit', pct: 30, icon: '💰' },
@@ -12,6 +13,7 @@ const MILESTONES = [
 ];
 
 export default function MilestonePage() {
+  const { lang } = useI18n();
   const [orders, setOrders] = useState([]);
   const [sel, setSel] = useState(null);
   useEffect(() => { api.fetchOrders().then(d => setOrders(d.orders || [])).catch(() => {}); }, []);
@@ -20,8 +22,8 @@ export default function MilestonePage() {
 
   return (
     <>
-      <h2 className="page-title">Milestone Payments</h2>
-      <p className="page-sub">Stage-gated payment control — deposit, sample, EVT/DVT/PVT, shipment, acceptance</p>
+      <h2 className="page-title">{lang === 'zh' ? '里程碑付款' : 'Milestone Payments'}</h2>
+      <p className="page-sub">{lang === 'zh' ? '阶段门控付款 — 定金、样品、EVT/DVT/PVT、发货、验收' : 'Stage-gated payment control — deposit, sample, EVT/DVT/PVT, shipment, acceptance'}</p>
 
       <div className="panel" style={{ marginBottom: 20 }}>
         <div className="panel-title">Payment Stage Template</div>

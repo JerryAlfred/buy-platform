@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useI18n } from '../i18n';
 
 const EVIDENCE_TYPES = [
   { key: 'photo', label: 'Photo', icon: '📷', desc: 'Production line / workstation photo' },
@@ -15,12 +16,13 @@ const DEMO_VERIFICATIONS = [
 ];
 
 export default function VerificationPage() {
+  const { lang } = useI18n();
   const [tab, setTab] = useState('overview');
 
   return (
     <>
-      <h2 className="page-title">Production Verification</h2>
-      <p className="page-sub">AI photo/video review + Shenzhen inspector on-site + layered verification system</p>
+      <h2 className="page-title">{lang === 'zh' ? '生产验证' : 'Production Verification'}</h2>
+      <p className="page-sub">{lang === 'zh' ? 'AI 照片/视频审核 + 深圳验厂员现场 + 分层验证体系' : 'AI photo/video review + Shenzhen inspector on-site + layered verification system'}</p>
 
       <div style={{ display: 'flex', gap: 0, background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 10, width: 'fit-content', marginBottom: 20 }}>
         {[{ id: 'overview', label: 'Overview' }, { id: 'evidence', label: 'Evidence Check' }, { id: 'inspector', label: 'Inspector' }].map(t =>

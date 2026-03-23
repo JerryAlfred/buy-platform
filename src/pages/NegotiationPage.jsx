@@ -1,7 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import * as api from '../api';
+import { useI18n } from '../i18n';
 
 export default function NegotiationPage() {
+  const { lang } = useI18n();
   const [sessions, setSessions] = useState([]);
   const [sel, setSel] = useState(null);
   const [detail, setDetail] = useState(null);
@@ -25,8 +27,8 @@ export default function NegotiationPage() {
 
   return (
     <>
-      <h2 className="page-title">AI Negotiation Engine</h2>
-      <p className="page-sub">Multi-round LLM-powered negotiation — auto-generate buyer messages, process supplier replies, cross-supplier bidding</p>
+      <h2 className="page-title">{lang === 'zh' ? 'AI 议价引擎' : 'AI Negotiation Engine'}</h2>
+      <p className="page-sub">{lang === 'zh' ? '多轮 LLM 驱动议价 — 自动生成买方消息、处理供应商回复、跨供应商竞价' : 'Multi-round LLM-powered negotiation — auto-generate buyer messages, process supplier replies, cross-supplier bidding'}</p>
 
       {llmStatus && <div className="kpis" style={{ marginBottom: 16 }}><div className="kpi"><div className="kpi-label">LLM Provider</div><div className="kpi-value" style={{ fontSize: '1rem' }}>{llmStatus.provider || 'N/A'}</div></div><div className="kpi"><div className="kpi-label">Model</div><div className="kpi-value" style={{ fontSize: '1rem' }}>{llmStatus.model || 'N/A'}</div></div><div className="kpi"><div className="kpi-label">Active Sessions</div><div className="kpi-value">{llmStatus.active_sessions || 0}</div></div></div>}
 

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuth, ROLES, PAGE_ACL } from '../auth';
+import { useI18n } from '../i18n';
 
 const PAGE_LABELS = {
   flywheel: 'Flywheel & KPIs', dashboard: 'Dashboard', confidence: 'Confidence System',
@@ -26,13 +27,14 @@ const PAGE_GROUPS = [
 const roleKeys = Object.keys(ROLES);
 
 export default function RolesPermissionsPage() {
+  const { lang } = useI18n();
   const { user } = useAuth();
   const [selectedRole, setSelectedRole] = useState(null);
 
   return (
     <>
-      <h2 className="page-title">Roles & Permissions</h2>
-      <p className="page-sub">Configure role-based access control for all platform modules</p>
+      <h2 className="page-title">{lang === 'zh' ? '角色与权限' : 'Roles & Permissions'}</h2>
+      <p className="page-sub">{lang === 'zh' ? '为所有平台模块配置基于角色的访问控制' : 'Configure role-based access control for all platform modules'}</p>
 
       <div className="panel">
         <div className="panel-title" style={{ marginBottom: 16 }}>Role Definitions</div>

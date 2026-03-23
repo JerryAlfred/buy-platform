@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import * as api from '../api';
+import { useI18n } from '../i18n';
 
 export default function SupplyGraphPage() {
+  const { lang } = useI18n();
   const [industries, setIndustries] = useState([]);
   const [selInd, setSelInd] = useState(null);
   const [graph, setGraph] = useState(null);
@@ -23,8 +25,8 @@ export default function SupplyGraphPage() {
 
   return (
     <>
-      <h2 className="page-title">Supply Graph</h2>
-      <p className="page-sub">Global supply chain knowledge graph — factories, products, processes, who-makes-what</p>
+      <h2 className="page-title">{lang === 'zh' ? '供应图谱' : 'Supply Graph'}</h2>
+      <p className="page-sub">{lang === 'zh' ? '全球供应链知识图谱 — 工厂、产品、工艺、谁造什么' : 'Global supply chain knowledge graph — factories, products, processes, who-makes-what'}</p>
 
       <div className="ai-bar">
         <input className="ai-input" placeholder='Search components: "servo motor", "harmonic drive", "6-axis robot"...' value={searchQ} onChange={e => setSearchQ(e.target.value)} onKeyDown={e => e.key === 'Enter' && doSearch()} />

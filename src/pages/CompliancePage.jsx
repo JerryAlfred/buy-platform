@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import * as api from '../api';
+import { useI18n } from '../i18n';
 
 const fmt = (n) => n == null ? '—' : typeof n === 'number' ? n.toLocaleString() : n;
 const pct = (n) => n == null ? '—' : `${(n * 100).toFixed(1)}%`;
@@ -15,6 +16,7 @@ function creditColor(score) {
 }
 
 export default function CompliancePage() {
+  const { lang } = useI18n();
   const [dash, setDash] = useState({});
   const [credits, setCredits] = useState([]);
   const [checks, setChecks] = useState([]);
@@ -41,8 +43,8 @@ export default function CompliancePage() {
 
   return (
     <>
-      <h2 className="page-title">Risk & Compliance</h2>
-      <p className="page-sub">Supplier credit scoring, compliance checks, and certification tracking</p>
+      <h2 className="page-title">{lang === 'zh' ? '认证与合规' : 'Certification & Compliance'}</h2>
+      <p className="page-sub">{lang === 'zh' ? '供应商信用评分、合规检查和认证跟踪' : 'Supplier credit scoring, compliance checks, and certification tracking'}</p>
 
       <div className="kpis">
         {kpis.map(k => (

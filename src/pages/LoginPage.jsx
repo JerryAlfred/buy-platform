@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { useAuth, DEMO_USERS, ROLES } from '../auth';
+import { useI18n } from '../i18n';
 
 export default function LoginPage() {
+  const { lang } = useI18n();
   const { login, loginAs } = useAuth();
   const [tab, setTab] = useState('login');
   const [email, setEmail] = useState('');
@@ -35,7 +37,7 @@ export default function LoginPage() {
           <h1 style={{ fontSize: '1.8rem', fontWeight: 800, background: 'linear-gradient(135deg,#3b82f6,#a855f7)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
             RobotBuy OS
           </h1>
-          <p style={{ color: 'var(--text3)', marginTop: 4 }}>Robot Supply Chain Operating System</p>
+          <p style={{ color: 'var(--text3)', marginTop: 4 }}>{lang === 'zh' ? '机器人供应链操作系统' : 'Robot Supply Chain Operating System'}</p>
         </div>
 
         <div className="panel">

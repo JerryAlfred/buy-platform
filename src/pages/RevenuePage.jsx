@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import * as api from '../api';
+import { useI18n } from '../i18n';
 
 const money = (n) => n == null ? '—' : `$${Number(n).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
 const moneyK = (n) => n == null ? '—' : n >= 1000000 ? `$${(n / 1000000).toFixed(1)}M` : n >= 1000 ? `$${(n / 1000).toFixed(0)}K` : `$${n.toLocaleString()}`;
@@ -21,6 +22,7 @@ const TIER_CONFIG = [
 const SCENARIO_LABELS = { conservative: 'badge-yellow', moderate: 'badge-blue', aggressive: 'badge-green' };
 
 export default function RevenuePage() {
+  const { lang } = useI18n();
   const [dash, setDash] = useState({});
   const [pricing, setPricing] = useState({});
   const [projections, setProjections] = useState({});
@@ -49,8 +51,8 @@ export default function RevenuePage() {
 
   return (
     <>
-      <h2 className="page-title">Revenue Model Dashboard</h2>
-      <p className="page-sub">RobotBuy OS revenue layers, pricing tiers, and growth projections</p>
+      <h2 className="page-title">{lang === 'zh' ? '营收中心' : 'Revenue Hub'}</h2>
+      <p className="page-sub">{lang === 'zh' ? 'RobotBuy OS 营收分层、定价方案和增长预测' : 'RobotBuy OS revenue layers, pricing tiers, and growth projections'}</p>
 
       <div className="kpis">
         {heroKpis.map(k => (

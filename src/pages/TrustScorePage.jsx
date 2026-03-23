@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import * as api from '../api';
+import { useI18n } from '../i18n';
 
 function StarBar({ score, max = 5 }) {
   return <div className="stars">{Array.from({ length: max }, (_, i) => <span key={i} className={`star ${i < Math.round(score) ? 'on' : 'off'}`}>★</span>)}</div>;
 }
 
 export default function TrustScorePage() {
+  const { lang } = useI18n();
   const [suppliers, setSuppliers] = useState([]);
   const [reliability, setReliability] = useState([]);
   useEffect(() => {
@@ -30,8 +32,8 @@ export default function TrustScorePage() {
 
   return (
     <>
-      <h2 className="page-title">Supplier Trust Scores</h2>
-      <p className="page-sub">Composite scoring: fulfillment history, quality, communication, on-time rate, verification status</p>
+      <h2 className="page-title">{lang === 'zh' ? '信任评分' : 'Trust Scores'}</h2>
+      <p className="page-sub">{lang === 'zh' ? '综合评分：履约历史、质量、沟通、准时率、验证状态' : 'Composite scoring: fulfillment history, quality, communication, on-time rate, verification status'}</p>
 
       <div className="panel">
         <div className="panel-header"><span className="panel-title">Trust Tiers</span></div>

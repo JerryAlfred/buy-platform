@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import * as api from '../api';
+import { useI18n } from '../i18n';
 
 const TIERS = [
   { label: 'Platinum', min: 90, color: 'var(--purple)', terms: 'Net 60', limit: '$500K', auto: '$50K' },
@@ -23,6 +24,7 @@ function getTier(score) {
 }
 
 export default function CreditPage() {
+  const { lang } = useI18n();
   const [suppliers, setSuppliers] = useState([]);
   const [reliability, setReliability] = useState([]);
   const [selected, setSelected] = useState(null);
@@ -56,8 +58,8 @@ export default function CreditPage() {
 
   return (
     <>
-      <h2 className="page-title">Supplier Credit & Risk Scoring</h2>
-      <p className="page-sub">Composite credit scores based on fulfillment, quality, financials, communication, and verification</p>
+      <h2 className="page-title">{lang === 'zh' ? '供应商信用' : 'Supplier Credit System'}</h2>
+      <p className="page-sub">{lang === 'zh' ? '基于履约、质量、财务、沟通和验证的综合信用评分' : 'Composite credit scores based on fulfillment, quality, financials, communication, and verification'}</p>
 
       <div className="kpis">
         <div className="kpi"><div className="kpi-label">Suppliers Scored</div><div className="kpi-value">{enriched.length}</div></div>

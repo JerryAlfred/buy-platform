@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import * as api from '../api';
+import { useI18n } from '../i18n';
 
 export default function OrderTrackingPage() {
+  const { lang } = useI18n();
   const [orders, setOrders] = useState([]);
   const [events, setEvents] = useState([]);
   useEffect(() => {
@@ -14,8 +16,8 @@ export default function OrderTrackingPage() {
 
   return (
     <>
-      <h2 className="page-title">Order Tracking</h2>
-      <p className="page-sub">Shipment tracking, delay alerts, auto follow-up reminders</p>
+      <h2 className="page-title">{lang === 'zh' ? '订单跟踪' : 'Order Tracking'}</h2>
+      <p className="page-sub">{lang === 'zh' ? '物流追踪、延期预警、自动跟进提醒' : 'Shipment tracking, delay alerts, auto follow-up reminders'}</p>
 
       <div className="kpis">
         <div className="kpi"><div className="kpi-label">Total Orders</div><div className="kpi-value">{orders.length}</div></div>

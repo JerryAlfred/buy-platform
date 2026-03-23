@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import * as api from '../api';
+import { useI18n } from '../i18n';
 
 const STAGES = ['RFQ', 'Quote', 'PO', 'Production', 'QC', 'Ship', 'Deliver', 'Accept'];
 const stageIndex = (s) => {
@@ -32,6 +33,7 @@ const MESSAGES = [
 ];
 
 export default function CustomerPortalPage() {
+  const { lang } = useI18n();
   const [orders, setOrders] = useState([]);
   const [selected, setSelected] = useState(null);
   const [tab, setTab] = useState('timeline');
@@ -52,8 +54,8 @@ export default function CustomerPortalPage() {
 
   return (
     <>
-      <h2 className="page-title">Customer Order Portal</h2>
-      <p className="page-sub">Track your orders, milestones, documents, and communications in one place</p>
+      <h2 className="page-title">{lang === 'zh' ? '客户门户' : 'Customer Portal'}</h2>
+      <p className="page-sub">{lang === 'zh' ? '在一处跟踪您的订单、里程碑、文件和沟通' : 'Track your orders, milestones, documents, and communications in one place'}</p>
 
       <div className="kpis">
         <div className="kpi"><div className="kpi-label">My Orders</div><div className="kpi-value">{orders.length}</div></div>
